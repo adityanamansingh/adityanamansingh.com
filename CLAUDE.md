@@ -111,6 +111,13 @@ Tokens contrast-checked in BOTH themes; real buttons/links with 24px+ (44px for 
 ### Verified
 Production build passes; all routes 200 (404 for unknown `/work/slug`); Lighthouse a11y / best-practices / SEO / agentic 100 on desktop and mobile for `/` in dark, and desktop in light (snapshot mode); contrast sampler over 1062 text nodes: 0 failures in each theme; CLS 0.0002, LCP ~1.1s; no console errors; 390px no horizontal overflow; light theme persists after reload. Not verified: real screen readers (VoiceOver/NVDA), Safari/Firefox, live Claude responses.
 
+## Hosting + contact form (static export, current)
+- `v5/next.config.mjs` uses `output: "export"`: `npm run build` writes the whole site to `v5/out/` (git-ignored). `images.unoptimized` (no server image optimizer), cache/content-type headers in `public/_headers` (Cloudflare Pages/Netlify format). Preview the build with `cd out && python3 -m http.server 3006`. `next start` no longer applies.
+- The `ask` feature (`/api/ask`, `lib/knowledge.ts`, `@anthropic-ai/sdk`, terminal `ask`/free-text questions) and `/api/contact` were removed on purpose. Unknown terminal commands print "command not found".
+- Contact form (`ContactForm` in `components/Panel.tsx`) posts straight to Web3Forms using `NEXT_PUBLIC_WEB3FORMS_KEY` (public by design; set it in `v5/.env.local` for local builds and as a Cloudflare Pages environment variable). Hidden `botcheck` honeypot. Without the key it falls back to opening the visitor's mail app (`mailto:`).
+- Deploy target decided: Cloudflare Pages (the domain's DNS is already on Cloudflare; free). Pages settings: root `v5`, build `npm run build`, output `out`, env `NEXT_PUBLIC_WEB3FORMS_KEY`. Adding the custom domain replaces the old static site at the root, so do it only when ready. (Vidushi's S3 + CloudFront GitHub Actions flow is the alternative; see `githubworking/vidushidesigns-new-2026/.github/workflows/deploy.yml`.)
+- Socials in the Contact tile + terminal `contact`: LinkedIn, GitHub, Instagram (`@namantastic`), Facebook.
+
 ## History of this redesign effort (what was done, in order)
 1. Reviewed the old static site, wrote this CLAUDE.md, confirmed GitHub remote.
 2. v2: Next.js rebuild with three.js scene, content pulled from the CV PDF and LinkedIn (experience, projects, certs, skills, testimonials, education incl. M.Tech). Numbered nav removed.

@@ -3,6 +3,7 @@ import { ImageResponse } from "next/og";
 export const alt = "Aditya Naman Singh — Full Stack & AI Engineer";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+export const dynamic = "force-static";
 
 export default function Image() {
   const tiles = [[0, 0, 420, 260], [440, 0, 340, 260], [800, 0, 330, 260], [0, 280, 330, 190], [350, 280, 430, 190], [800, 280, 330, 190]];

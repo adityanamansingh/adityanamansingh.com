@@ -24,10 +24,18 @@ function ContactForm({ initialIntent }: { initialIntent?: string }) {
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); setState("sending");
     const form = e.currentTarget;
-    const body = { ...Object.fromEntries(new FormData(form)), intent, message: msg };
+    const key = process.env.NEXT_PUBLIC_WEB3FORMS_KEY;
+    const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
+    const label = intents.find((i) => i.key === intent)?.label ?? "General";
+    if (!key) { // no form service configured: hand over to the visitor's mail app instead
+      location.href = `mailto:${profile.email}?subject=${encodeURIComponent(`Portfolio: ${label}`)}&body=${encodeURIComponent(`${msg}\n\n${data.name} (${data.email})`)}`;
+      setState("idle"); return;
+    }
     try {
-      const r = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      setState(r.ok ? "ok" : "err"); if (r.ok) { form.reset(); setMsg(""); setIntent(""); }
+      const r = await fetch("https://api.web3forms.com/submit", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ access_key: key, subject: `Portfolio: ${label} from ${data.name}`, from_name: "adityanamansingh.com", name: data.name, email: data.email, message: msg, topic: label, botcheck: data.botcheck ?? "" }) });
+      const ok = r.ok && (await r.json()).success === true;
+      setState(ok ? "ok" : "err"); if (ok) { form.reset(); setMsg(""); setIntent(""); }
     } catch { setState("err"); }
   }
   const field = "w-full rounded-xl border border-line2 bg-bg px-4 py-3 text-base placeholder:text-muted sm:text-sm";
@@ -38,6 +46,7 @@ function ContactForm({ initialIntent }: { initialIntent?: string }) {
         <label className="block text-sm"><span className="mb-1.5 block text-muted">Your name</span><input name="name" required autoComplete="name" placeholder="Jane Doe" className={field} /></label>
         <label className="block text-sm"><span className="mb-1.5 block text-muted">Your email</span><input name="email" type="email" required autoComplete="email" placeholder="jane@company.com" className={field} /></label>
       </div>
+      <input type="checkbox" name="botcheck" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
       <div className="flex flex-wrap gap-2" role="group" aria-label="What is this about?">
         {intents.map((k) => <button key={k.key} type="button" aria-pressed={intent === k.key} onClick={() => pick(k)} className="chip">{k.label}</button>)}
       </div>
