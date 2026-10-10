@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import Header from "@/components/Header";
 import { projects } from "@/data/projects";
 import { getImages } from "@/lib/images";
+import { SITE, caseStudyJsonLd } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -14,7 +15,12 @@ export function generateStaticParams() { return projects.map((p) => ({ slug: p.s
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const p = projects.find((x) => x.slug === slug);
-  return p ? { title: p.title, description: p.summary } : {};
+  return p ? {
+    title: p.title, description: p.summary, keywords: p.stack,
+    alternates: { canonical: `/work/${p.slug}` },
+    openGraph: { title: `${p.title} · Aditya Naman Singh`, description: p.summary, url: `${SITE}/work/${p.slug}`, type: "article", siteName: "Aditya Naman Singh" },
+    twitter: { card: "summary_large_image", title: p.title, description: p.summary },
+  } : {};
 }
 
 export default async function CaseStudy({ params }: Props) {
@@ -32,6 +38,7 @@ export default async function CaseStudy({ params }: Props) {
   return (
     <>
       <a href="#main" className="sr-only z-[100] rounded-full bg-brand px-4 py-2 font-medium text-on-brand focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Skip to main content</a>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(caseStudyJsonLd(p.slug)) }} />
       <Header />
       <main id="main" tabIndex={-1} className="safe-x mx-auto max-w-7xl pb-20 pt-8 outline-none">
         <Link href="/#work" className="inline-flex min-h-11 items-center gap-2 text-sm text-muted hover:text-fg"><ArrowLeft size={16} aria-hidden="true" /> Back to all work</Link>

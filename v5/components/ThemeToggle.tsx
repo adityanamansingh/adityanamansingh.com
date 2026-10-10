@@ -1,4 +1,5 @@
 "use client";
+import { track } from "@/lib/analytics";
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 
@@ -11,6 +12,7 @@ export default function ThemeToggle() {
   const toggle = () => {
     const next: Theme = theme === "dark" ? "light" : "dark";
     setTheme(next);
+    track("theme_toggle", { theme: next });
     document.documentElement.dataset.theme = next;
     try { localStorage.setItem("theme", next); } catch { /* private mode: still works for this visit */ }
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", next === "dark" ? "#14161b" : "#f7f6f6");

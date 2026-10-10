@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { track } from "@/lib/analytics";
 import Image from "next/image";
 import { animate, useInView } from "framer-motion";
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight, Check, Compass, Copy, Disc3, Download, ExternalLink, Music2, Plane, Tent, Waves, type LucideIcon } from "lucide-react";
@@ -319,7 +320,7 @@ export function ContactTile({ onOpen }: { onOpen: (intent?: string) => void }) {
       <p className="text-3xl font-semibold leading-tight tracking-tight">Have something in mind? <span className="serif text-accent">Let&apos;s talk.</span></p>
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <a href={`mailto:${profile.email}`} className="tap break-all text-sm underline underline-offset-4 hover:text-accent">{profile.email}</a>
-        <button onClick={() => copyText(profile.email).then((ok) => { setCopied(ok); setTimeout(() => setCopied(false), 1800); })} className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line2 px-3 text-xs hover:border-accent" aria-live="polite">
+        <button onClick={() => copyText(profile.email).then((ok) => { if (ok) track("copy_email"); setCopied(ok); setTimeout(() => setCopied(false), 1800); })} className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line2 px-3 text-xs hover:border-accent" aria-live="polite">
           {copied ? <><Check size={13} aria-hidden="true" /> Copied</> : <><Copy size={13} aria-hidden="true" /> Copy</>}
         </button>
       </div>

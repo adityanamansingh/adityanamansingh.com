@@ -3,6 +3,7 @@ import { useMemo, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, m } from "framer-motion";
 import { ArrowRight, X } from "lucide-react";
 import { useModal } from "./modal";
+import { track } from "@/lib/analytics";
 import { profile, certifications, certGroups, certGroupOf, testimonials, beyond, skillGroups } from "@/data/profile";
 import { projects } from "@/data/projects";
 import gh from "@/data/github.json";
@@ -10,6 +11,16 @@ import { GitLog, Heatmap, LifeMosaic, Person, ProjectCard, intents, type Images 
 
 export type PanelId = "experience" | "skills" | "github" | "certs" | "testimonials" | "work" | "life" | "contact";
 const titles: Record<PanelId, string> = { experience: "Experience", skills: "Skills", github: "Code activity", certs: "Certifications", testimonials: "Kind words", work: "All work", life: "Beyond code", contact: "Write to me" };
+
+/** Approximate place the message was sent from (city/country level), via the free ipwho.is lookup (no key). Never blocks sending: 2.5s timeout, any failure just means no location. */
+async function whereFrom() {
+  try {
+    const r = await fetch("https://ipwho.is/?fields=success,ip,city,region,country,timezone,connection", { signal: AbortSignal.timeout(2500) });
+    const d = await r.json();
+    if (!d.success) return {};
+    return { location: [d.city, d.region, d.country].filter(Boolean).join(", "), ip: d.ip, network: d.connection?.isp || d.connection?.org || "", timezone: d.timezone?.id || "" };
+  } catch { return {}; }
+}
 
 function ContactForm({ initialIntent }: { initialIntent?: string }) {
   const [state, setState] = useState<"idle" | "sending" | "ok" | "err">("idle");
@@ -22,21 +33,21 @@ function ContactForm({ initialIntent }: { initialIntent?: string }) {
     if (!msg || (prev && msg === prev.text)) setMsg(next ? k.text : "");
   };
   async function submit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault(); setState("sending");
+    e.preventDefault(); setState("sending"); track("form_submit", { intent: intent || "none" });
     const form = e.currentTarget;
     const key = process.env.NEXT_PUBLIC_WEB3FORMS_KEY;
     const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
     const label = intents.find((i) => i.key === intent)?.label ?? "General";
     if (!key) { // no form service configured: hand over to the visitor's mail app instead
       location.href = `mailto:${profile.email}?subject=${encodeURIComponent(`Portfolio: ${label}`)}&body=${encodeURIComponent(`${msg}\n\n${data.name} (${data.email})`)}`;
-      setState("idle"); return;
+      track("form_mailto_fallback"); setState("idle"); return;
     }
     try {
       const r = await fetch("https://api.web3forms.com/submit", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ access_key: key, subject: `Portfolio: ${label} from ${data.name}`, from_name: "adityanamansingh.com", name: data.name, email: data.email, message: msg, topic: label, botcheck: data.botcheck ?? "" }) });
+        body: JSON.stringify({ access_key: key, subject: `Portfolio: ${label} from ${data.name}`, from_name: "adityanamansingh.com", name: data.name, email: data.email, message: msg, topic: label, botcheck: data.botcheck ?? "", ...(await whereFrom()), page: location.href, referrer: document.referrer || "direct" }) });
       const ok = r.ok && (await r.json()).success === true;
-      setState(ok ? "ok" : "err"); if (ok) { form.reset(); setMsg(""); setIntent(""); }
-    } catch { setState("err"); }
+      setState(ok ? "ok" : "err"); track(ok ? "generate_lead" : "form_error", { intent: intent || "none", value: 1, currency: "INR" }); if (ok) { form.reset(); setMsg(""); setIntent(""); }
+    } catch { setState("err"); track("form_error", { intent: intent || "none", reason: "network" }); }
   }
   const field = "w-full rounded-xl border border-line2 bg-bg px-4 py-3 text-base placeholder:text-muted sm:text-sm";
   return (
@@ -55,6 +66,7 @@ function ContactForm({ initialIntent }: { initialIntent?: string }) {
         <button disabled={state === "sending"} className="btn-primary disabled:opacity-60">{state === "sending" ? "Sending…" : "Send message"} <ArrowRight size={16} aria-hidden="true" /></button>
         <p role="status" className="text-sm">{state === "ok" && <span className="text-accent">Thanks! I&apos;ll get back to you soon.</span>}{state === "err" && <span className="text-[var(--danger)]">Something went wrong. Please email me directly.</span>}</p>
       </div>
+      <p className="text-xs text-muted">Sending also shares your approximate location (city and country), so I know where a message came from.</p>
     </form>
   );
 }

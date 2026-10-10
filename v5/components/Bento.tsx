@@ -8,6 +8,7 @@ import type { PanelId } from "./Panel";
 const Panel = dynamic(() => import("./Panel"), { ssr: false });
 import { HeroTile, PortraitTile, GitHubTile, NowTile, ExperienceTile, ProjectsTile, SkillsTile, CertsTile, TestimonialsTile, LifeTile, ContactTile, type Images } from "./tiles";
 import { profile } from "@/data/profile";
+import { track } from "@/lib/analytics";
 
 function GroupHeading({ id, title, accent, sub }: { id: string; title: string; accent: string; sub: string }) {
   return (
@@ -22,7 +23,7 @@ export default function Bento({ images }: { images: Images }) {
   const [open, setOpen] = useState<PanelId | null>(null);
   const [intent, setIntent] = useState<string | undefined>();
   const [focusKey, setFocusKey] = useState(0);
-  const openPanel = (id: PanelId, i?: string) => { setIntent(i); setOpen(id); };
+  const openPanel = (id: PanelId, i?: string) => { setIntent(i); setOpen(id); track("panel_open", { panel: id, intent: i }); };
   const toWork = () => document.getElementById("work")?.scrollIntoView({ behavior: "smooth", block: "start" });
   return (
     <LazyMotion features={domAnimation}><MotionConfig reducedMotion="user">

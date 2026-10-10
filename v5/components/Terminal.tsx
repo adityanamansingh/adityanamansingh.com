@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { profile, experience, certifications, skillGroups, skillInfo } from "@/data/profile";
 import { projects, now } from "@/data/projects";
 import gh from "@/data/github.json";
+import { track } from "@/lib/analytics";
 
 type Line = { id: number; node: ReactNode };
 
@@ -55,6 +56,7 @@ export default function Terminal({ focusKey }: { focusKey?: number }) {
     push(<div><Acc>$</Acc> {input}</div>);
     const [cmd, ...rest] = input.split(/\s+/);
     const arg = rest.join(" ");
+    track("terminal_command", { command: cmd.toLowerCase().slice(0, 20) });
     switch (cmd.toLowerCase()) {
       case "help": push(<dl className="grid grid-cols-[auto_1fr] gap-x-4">{HELP.map(([c, d]) => <div key={c} className="contents"><dt><Acc>{c}</Acc></dt><dd><Dim>{d}</Dim></dd></div>)}</dl>); break;
       case "whoami": push(<div>{profile.name} — {profile.role}, {profile.location}. <Dim>6+ years, Laravel, Node.js, Vue, Gemini.</Dim></div>); break;
