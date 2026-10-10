@@ -6,6 +6,8 @@
     "dev": "next dev -p 3004",
     "build": "next build",
     "start": "next start -p 3004",
+    "preview": "npm run build && npx wrangler pages dev out --port 3006",
+    "deploy": "npm run build && npx wrangler pages deploy out --project-name=adityanamansingh-com",
     "sync:linkedin": "node scripts/sync-linkedin.mjs",
     "sync:github": "node scripts/sync-github.mjs"
   },
