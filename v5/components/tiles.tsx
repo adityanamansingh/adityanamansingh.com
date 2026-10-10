@@ -54,7 +54,7 @@ export function PortraitTile({ images }: { images: Images }) {
   const src = images.portrait ?? "/photo.jpg";
   return (
     <div className="relative -mx-5 -mb-5 -mt-5 flex-1 overflow-hidden">
-      <Image src={src} alt={`Portrait of ${profile.name}`} fill priority sizes="(min-width: 1024px) 33vw, 100vw" className="object-cover object-[50%_20%]" />
+      <Image src={src} alt={`Portrait of ${profile.name}`} fill priority sizes="(min-width: 1024px) 33vw, 100vw" className="object-cover object-[50%_30%]" />
     </div>
   );
 }

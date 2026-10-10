@@ -28,8 +28,8 @@ export default function Bento({ images }: { images: Images }) {
     <LazyMotion features={domAnimation}><MotionConfig reducedMotion="user">
       <main id="main" tabIndex={-1} className="safe-x mx-auto max-w-7xl pb-16 pt-6 outline-none">
         <div className="grid grid-cols-1 gap-4 md:grid-flow-dense md:grid-cols-2 lg:auto-rows-[minmax(7.25rem,auto)] lg:grid-flow-row lg:grid-cols-12">
-          <Tile id="top" title="Hello" index={0} className="md:col-span-2 lg:col-span-8 lg:row-span-4"><HeroTile onWork={toWork} /></Tile>
-          <Tile id="portrait" title="Portrait" hideTitle index={1} className="min-h-[24rem] md:col-span-1 lg:col-span-4 lg:row-span-4"><PortraitTile images={images} /></Tile>
+          <Tile id="top" title="Hello" index={0} className="md:col-span-2 lg:col-span-7 lg:row-span-4"><HeroTile onWork={toWork} /></Tile>
+          <Tile id="portrait" title="Portrait" hideTitle index={1} className="min-h-[24rem] md:col-span-1 lg:col-span-5 lg:row-span-4"><PortraitTile images={images} /></Tile>
 
           <Tile id="terminal" title="Terminal · ask me anything" index={2} className="md:col-span-2 lg:col-span-7 lg:row-span-5"><div className="relative min-h-[28rem] flex-1"><div className="absolute inset-0 flex flex-col"><Terminal focusKey={focusKey} /></div></div></Tile>
           <Tile id="now" title="Right now" index={4} className="md:col-span-2 lg:col-span-5 lg:row-span-2"><NowTile /></Tile>
