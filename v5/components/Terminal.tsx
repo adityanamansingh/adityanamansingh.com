@@ -6,7 +6,6 @@ import { projects, now } from "@/data/projects";
 import gh from "@/data/github.json";
 
 type Line = { id: number; node: ReactNode };
-type Turn = { role: "user" | "assistant"; content: string };
 
 const hash = (s: string) => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0; return h.toString(16).padStart(7, "0").slice(0, 7); };
 const Dim = ({ children }: { children: ReactNode }) => <span className="text-muted">{children}</span>;
@@ -16,23 +15,20 @@ const HELP: [string, string][] = [
   ["help", "list commands"], ["whoami", "one-line intro"], ["about", "short bio"], ["experience", "my roles"],
   ["projects", "list case studies"], ["open <n|name>", "open a case study"], ["skills [filter]", "what I work with, e.g. skills cloud"], ["certs [filter]", "all certifications, e.g. certs google"],
   ["github", "commit activity"], ["now", "what I'm up to"], ["contact", "email, phone, links"], ["cv", "download résumé"],
-  ["ask <question>", "ask anything about me (or just type a question)"], ["clear", "clear the screen"],
+  ["clear", "clear the screen"],
 ];
 
 export default function Terminal({ focusKey }: { focusKey?: number }) {
   const router = useRouter();
   const [lines, setLines] = useState<Line[]>([]);
   const [value, setValue] = useState("");
-  const [busy, setBusy] = useState(false);
   const idRef = useRef(0);
   const logRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const hist = useRef<string[]>([]);
   const histPos = useRef(-1);
-  const turns = useRef<Turn[]>([]);
 
   const push = useCallback((node: ReactNode) => { const id = ++idRef.current; setLines((l) => [...l, { id, node }]); return id; }, []);
-  const replace = useCallback((id: number, node: ReactNode) => setLines((l) => l.map((x) => (x.id === id ? { ...x, node } : x))), []);
 
   useEffect(() => { logRef.current?.scrollTo({ top: logRef.current.scrollHeight }); }, [lines]);
   useEffect(() => { if (focusKey) inputRef.current?.focus({ preventScroll: true }); }, [focusKey]);
@@ -51,19 +47,6 @@ export default function Terminal({ focusKey }: { focusKey?: number }) {
     const a = arg.toLowerCase();
     return projects.find((p) => p.slug === a || p.title.toLowerCase() === a || p.slug.includes(a) || p.title.toLowerCase().includes(a));
   }, []);
-
-  const ask = useCallback(async (q: string) => {
-    const pid = push(<Dim>thinking<span className="caret">…</span></Dim>);
-    setBusy(true);
-    try {
-      const r = await fetch("/api/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ q, history: turns.current }) });
-      const data = (await r.json()) as { answer?: string; error?: string; source?: string };
-      const answer = data.answer ?? data.error ?? "Something went wrong. Try again, or email me.";
-      turns.current = [...turns.current, { role: "user" as const, content: q }, { role: "assistant" as const, content: answer }].slice(-6);
-      replace(pid, <div className="whitespace-pre-wrap">{answer}</div>);
-    } catch { replace(pid, <span className="text-[var(--danger)]">Couldn&apos;t reach the answer service. Email me instead: {profile.email}</span>); }
-    finally { setBusy(false); }
-  }, [push, replace]);
 
   const run = useCallback(async (raw: string) => {
     const input = raw.trim();
@@ -103,25 +86,24 @@ export default function Terminal({ focusKey }: { focusKey?: number }) {
       }
       case "github": push(<div>{gh.total} contributions in the last year · {gh.activeDays} active days · best streak {gh.bestStreak} days.<br /><Dim>@{gh.accounts.join(" · @")}</Dim></div>); break;
       case "now": push(<dl className="grid grid-cols-[auto_1fr] gap-x-4">{now.map((n) => <div key={n.label} className="contents"><dt><Acc>{n.label}</Acc></dt><dd>{n.value}</dd></div>)}</dl>); break;
-      case "contact": case "email": push(<div className="space-y-0.5"><div>Email <a className="text-accent underline underline-offset-4" href={`mailto:${profile.email}`}>{profile.email}</a></div><div>Phone <a className="text-accent underline underline-offset-4" href={`tel:${profile.phone.replace(/\s/g, "")}`}>{profile.phone}</a></div><div>{profile.socials.slice(0, 2).map((s) => <a key={s.label} className="mr-3 text-accent underline underline-offset-4" href={s.href} target="_blank" rel="noreferrer">{s.label}<span className="sr-only"> (opens in new tab)</span></a>)}</div></div>); break;
+      case "contact": case "email": push(<div className="space-y-0.5"><div>Email <a className="text-accent underline underline-offset-4" href={`mailto:${profile.email}`}>{profile.email}</a></div><div>Phone <a className="text-accent underline underline-offset-4" href={`tel:${profile.phone.replace(/\s/g, "")}`}>{profile.phone}</a></div><div>{profile.socials.map((s) => <a key={s.label} className="mr-3 text-accent underline underline-offset-4" href={s.href} target="_blank" rel="noreferrer">{s.label}<span className="sr-only"> (opens in new tab)</span></a>)}</div></div>); break;
       case "cv": case "resume": push(<a className="text-accent underline underline-offset-4" href={profile.cv} download>Download résumé (PDF)</a>); break;
       case "clear": setLines([]); break;
-      case "ask": if (!arg) push(<Dim>Usage: ask &lt;question&gt;, e.g. ask what has he built with AI?</Dim>); else await ask(arg); break;
       case "sudo": push(<span className="text-[var(--danger)]">Nice try. Permission denied.</span>); break;
       case "ls": push(<div className="text-accent">about.md &nbsp; experience.log &nbsp; projects/ &nbsp; skills.json &nbsp; contact.txt</div>); break;
-      default: await ask(input); // anything else is treated as a question
+      default: push(<span className="text-[var(--danger)]">command not found: {cmd}. Type <Acc>help</Acc> to see what works.</span>);
     }
-  }, [push, ask, router, projectByArg]);
+  }, [push, router, projectByArg]);
 
   useEffect(() => {
     setLines([
-      { id: ++idRef.current, node: <div><Acc>Welcome.</Acc> This is a real terminal. Type a command, or just ask me a question in plain English.</div> },
+      { id: ++idRef.current, node: <div><Acc>Welcome.</Acc> This is a real terminal. Type a command to explore.</div> },
       { id: ++idRef.current, node: <div><Acc>$</Acc> help</div> },
       { id: ++idRef.current, node: <dl className="grid grid-cols-[auto_1fr] gap-x-4">{HELP.map(([c, d]) => <div key={c} className="contents"><dt><Acc>{c}</Acc></dt><dd><Dim>{d}</Dim></dd></div>)}</dl> },
     ]);
   }, []);
 
-  const chips = useMemo(() => ["help", "projects", "experience", "skills", "certs", "ask what has he built with AI?"], []);
+  const chips = useMemo(() => ["help", "projects", "experience", "skills", "certs"], []);
 
   return (
     <div data-theme="dark" className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-line bg-bg font-mono text-[13px] leading-relaxed text-fg" onClick={() => inputRef.current?.focus({ preventScroll: true })}>
@@ -134,16 +116,16 @@ export default function Terminal({ focusKey }: { focusKey?: number }) {
       </div>
       <form className="flex items-center gap-2 border-t border-line px-3 py-2" onSubmit={(e) => { e.preventDefault(); const v = value; setValue(""); void run(v); }}>
         <label htmlFor="term-input" className="text-accent" aria-hidden="true">$</label>
-        <input id="term-input" ref={inputRef} value={value} onChange={(e) => setValue(e.target.value)} disabled={busy} autoComplete="off" autoCapitalize="off" spellCheck={false}
-          aria-label="Type a command or ask a question about Aditya" placeholder={busy ? "thinking…" : "help, projects, or ask me anything  ( / to focus )"} className="min-h-11 min-w-0 flex-1 bg-transparent text-base text-fg placeholder:text-muted sm:min-h-9 sm:text-[13px]"
+        <input id="term-input" ref={inputRef} value={value} onChange={(e) => setValue(e.target.value)} autoComplete="off" autoCapitalize="off" spellCheck={false}
+          aria-label="Type a command" placeholder="type help  ( / to focus )" className="min-h-11 min-w-0 flex-1 bg-transparent text-base text-fg placeholder:text-muted sm:min-h-9 sm:text-[13px]"
           onKeyDown={(e) => {
             if (e.key === "ArrowUp") { e.preventDefault(); histPos.current = Math.min(histPos.current + 1, hist.current.length - 1); setValue(hist.current[histPos.current] ?? ""); }
             if (e.key === "ArrowDown") { e.preventDefault(); histPos.current = Math.max(histPos.current - 1, -1); setValue(hist.current[histPos.current] ?? ""); }
           }} />
-        <button type="submit" disabled={busy || !value.trim()} className="min-h-11 rounded-md px-3 py-1 text-xs text-muted hover:text-fg disabled:opacity-40 sm:min-h-9">Run</button>
+        <button type="submit" disabled={!value.trim()} className="min-h-11 rounded-md px-3 py-1 text-xs text-muted hover:text-fg disabled:opacity-40 sm:min-h-9">Run</button>
       </form>
       <div className="flex flex-wrap gap-2 border-t border-line p-2" role="group" aria-label="Quick commands">
-        {chips.map((c) => <button key={c} disabled={busy} onClick={() => void run(c)} className="chip !py-1 font-mono text-xs disabled:opacity-50">{c.startsWith("ask") ? "ask: built with AI?" : c}</button>)}
+        {chips.map((c) => <button key={c} onClick={() => void run(c)} className="chip !py-1 font-mono text-xs disabled:opacity-50">{c}</button>)}
       </div>
     </div>
   );

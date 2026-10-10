@@ -10,8 +10,8 @@ const instrument = Instrument_Serif({ subsets: ["latin"], weight: "400", style: 
 export const metadata: Metadata = {
   metadataBase: new URL("https://adityanamansingh.com"),
   title: { default: "Aditya Naman Singh — Full Stack & AI Engineer", template: "%s · Aditya Naman Singh" },
-  description: "Full Stack & AI Engineer with 6+ years in Laravel, Node.js, Vue and Gemini. Case studies, an interactive terminal you can ask questions, and how to reach me.",
-  openGraph: { title: "Aditya Naman Singh — Full Stack & AI Engineer", description: "Bento portfolio with case studies and a terminal you can ask anything.", type: "website" },
+  description: "Full Stack & AI Engineer with 6+ years in Laravel, Node.js, Vue and Gemini. Case studies, an interactive terminal, and how to reach me.",
+  openGraph: { title: "Aditya Naman Singh — Full Stack & AI Engineer", description: "Bento portfolio with case studies and an interactive terminal.", type: "website" },
   twitter: { card: "summary_large_image" },
 };
 export const viewport: Viewport = { themeColor: "#14161b", colorScheme: "dark light", viewportFit: "cover" };

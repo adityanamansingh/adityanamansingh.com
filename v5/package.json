@@ -10,7 +10,6 @@
     "sync:github": "node scripts/sync-github.mjs"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.133.0",
     "framer-motion": "^14.0.0",
     "lucide-react": "^1.54.0",
     "next": "^16.4.0",

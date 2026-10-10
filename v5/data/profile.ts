@@ -10,10 +10,10 @@ export const profile = {
   available: true,
   cv: "/aditya-naman-singh-resume.pdf",
   socials: [
-    { label: "LinkedIn", href: "https://linkedin.com/in/adityanamansingh" },
-    { label: "Instagram", href: "https://instagram.com/namantastic" },
-    { label: "Facebook", href: "https://facebook.com/adityanamansingh" },
-    // TODO: add GitHub
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/adityanamansingh/", handle: "adityanamansingh" },
+    { label: "GitHub", href: "https://github.com/adityanamansingh", handle: "adityanamansingh" },
+    { label: "Instagram", href: "https://www.instagram.com/namantastic/", handle: "@namantastic" },
+    { label: "Facebook", href: "https://facebook.com/adityanamansingh", handle: "adityanamansingh" },
   ],
   about: [
     "Adventurous. Passionate. Ambitious. Curious technologist, happy-go-lucky creator, and believer that intent plus effort has zero limits. My journey from sales and strategy to code and creativity has been anything but linear.",

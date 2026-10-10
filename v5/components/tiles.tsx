@@ -323,6 +323,11 @@ export function ContactTile({ onOpen }: { onOpen: (intent?: string) => void }) {
           {copied ? <><Check size={13} aria-hidden="true" /> Copied</> : <><Copy size={13} aria-hidden="true" /> Copy</>}
         </button>
       </div>
+      <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm" aria-label="Social profiles">
+        {profile.socials.map((s) => (
+          <li key={s.label}><a href={s.href} target="_blank" rel="noopener noreferrer" className="tap gap-1.5 text-muted underline-offset-4 hover:text-accent hover:underline">{s.label}<span className="text-xs text-muted/80">{s.handle}</span><ExternalLink size={12} aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a></li>
+        ))}
+      </ul>
       </div>
       <div>
         <p className="mono-label !text-[11px]">What is this about?</p>
