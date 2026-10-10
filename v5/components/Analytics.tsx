@@ -16,7 +16,7 @@ export default function Analytics() {
       const text = (a.textContent ?? "").replace(/\s+/g, " ").trim().slice(0, 60);
       if (href.startsWith("mailto:")) return track("contact_click", { method: "email", link_text: text });
       if (href.startsWith("tel:")) return track("contact_click", { method: "phone" });
-      if (/\.pdf($|\?)/i.test(href)) return track("file_download", { file_name: href.split("/").pop(), file_extension: "pdf", link_text: text });
+      if (/\.pdf($|\?)/i.test(href)) return track("resume_download", { file_name: href.split("/").pop(), link_text: text }); // GA4 already records its own file_download
       if (href.startsWith("/work/")) return track("select_content", { content_type: "case_study", item_id: href.split("/")[2]?.replace(/\/$/, ""), link_text: text });
       let url: URL; try { url = new URL(a.href); } catch { return; }
       if (url.origin !== location.origin) {
