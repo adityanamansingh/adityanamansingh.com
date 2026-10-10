@@ -9,7 +9,8 @@ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body),
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }) => {
-  if (!env.TURNSTILE_SECRET || !env.WEB3FORMS_KEY) return json({ ok: false, error: "not_configured" }, 500);
+  const missing = (["TURNSTILE_SECRET", "WEB3FORMS_KEY"] as const).filter((k) => !env[k]); // names only, never values
+  if (missing.length) return json({ ok: false, error: "not_configured", missing }, 500);
   let b: Record<string, unknown>;
   try { b = await request.json(); } catch { return json({ ok: false, error: "bad_request" }, 400); }
 
