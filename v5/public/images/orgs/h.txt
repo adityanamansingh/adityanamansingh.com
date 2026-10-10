@@ -1,0 +1,22 @@
+HTTP/2 200 
+server: Play
+content-type: image/jpeg
+cache-control: public, max-age=86400
+last-modified: Thu, 02 Sep 2021 23:16:10 GMT
+x-ambry-blob-size: 4789
+content-length: 4789
+x-li-fabric: prod-lva1
+x-content-type-options: nosniff
+x-li-pop: prod-lva1-x
+x-li-proto: http/1.1
+access-control-expose-headers: X-CDN, X-CDN-Client-IP-Version, X-CDN-Proto, X-Cache, X-CDN-RCODE
+x-li-uuid: AAZXlVt9MCHDwbd/vgA9yg==
+date: Sat, 10 Oct 2026 05:02:42 GMT
+alt-svc: h3=":443"; ma=93600,h3-29=":443"; ma=93600
+x-cache: TCP_HIT
+x-cdn-proto: HTTP2
+x-cdn-client-ip-version: IPV4
+timing-allow-origin: *
+access-control-allow-origin: *
+x-cdn: AKAM-STLS
+

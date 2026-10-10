@@ -1,0 +1,90 @@
+"use client";
+import { useMemo, useRef, useState, type ReactNode } from "react";
+import { AnimatePresence, m } from "framer-motion";
+import { ArrowRight, X } from "lucide-react";
+import { useModal } from "./modal";
+import { profile, certifications, testimonials, beyond } from "@/data/profile";
+import { projects } from "@/data/projects";
+import gh from "@/data/github.json";
+import { GitLog, Heatmap, LifeMosaic, Person, ProjectCard, intents, type Images } from "./tiles";
+
+export type PanelId = "experience" | "github" | "certs" | "testimonials" | "work" | "life" | "contact";
+const titles: Record<PanelId, string> = { experience: "Experience", github: "Code activity", certs: "Certifications", testimonials: "Kind words", work: "All work", life: "Beyond code", contact: "Write to me" };
+
+function ContactForm({ initialIntent }: { initialIntent?: string }) {
+  const [state, setState] = useState<"idle" | "sending" | "ok" | "err">("idle");
+  const [intent, setIntent] = useState(initialIntent ?? "");
+  const [msg, setMsg] = useState(() => intents.find((i) => i.key === initialIntent)?.text ?? "");
+  const pick = (k: (typeof intents)[number]) => {
+    const prev = intents.find((i) => i.key === intent);
+    const next = intent === k.key ? "" : k.key;
+    setIntent(next);
+    if (!msg || (prev && msg === prev.text)) setMsg(next ? k.text : "");
+  };
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault(); setState("sending");
+    const form = e.currentTarget;
+    const body = { ...Object.fromEntries(new FormData(form)), intent, message: msg };
+    try {
+      const r = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      setState(r.ok ? "ok" : "err"); if (r.ok) { form.reset(); setMsg(""); setIntent(""); }
+    } catch { setState("err"); }
+  }
+  const field = "w-full rounded-xl border border-line2 bg-bg px-4 py-3 text-base placeholder:text-muted sm:text-sm";
+  return (
+    <form onSubmit={submit} className="space-y-4">
+      <p className="text-muted">Email works too: <a className="text-fg underline underline-offset-4" href={`mailto:${profile.email}`}>{profile.email}</a>. Pick what this is about, I read everything.</p>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="block text-sm"><span className="mb-1.5 block text-muted">Your name</span><input name="name" required autoComplete="name" placeholder="Jane Doe" className={field} /></label>
+        <label className="block text-sm"><span className="mb-1.5 block text-muted">Your email</span><input name="email" type="email" required autoComplete="email" placeholder="jane@company.com" className={field} /></label>
+      </div>
+      <div className="flex flex-wrap gap-2" role="group" aria-label="What is this about?">
+        {intents.map((k) => <button key={k.key} type="button" aria-pressed={intent === k.key} onClick={() => pick(k)} className="chip">{k.label}</button>)}
+      </div>
+      <label className="block text-sm"><span className="mb-1.5 block text-muted">Message</span><textarea required rows={6} value={msg} onChange={(e) => setMsg(e.target.value)} placeholder="Tell me what's on your mind…" className={`${field} resize-none`} /></label>
+      <div className="flex items-center gap-4">
+        <button disabled={state === "sending"} className="btn-primary disabled:opacity-60">{state === "sending" ? "Sending…" : "Send message"} <ArrowRight size={16} aria-hidden="true" /></button>
+        <p role="status" className="text-sm">{state === "ok" && <span className="text-accent">Thanks! I&apos;ll get back to you soon.</span>}{state === "err" && <span className="text-[var(--danger)]">Something went wrong. Please email me directly.</span>}</p>
+      </div>
+    </form>
+  );
+}
+
+function CertList() {
+  const [q, setQ] = useState("");
+  const list = useMemo(() => certifications.filter((c) => (c.title + c.org).toLowerCase().includes(q.toLowerCase())), [q]);
+  return (
+    <div>
+      <label className="block text-sm"><span className="sr-only">Filter certifications</span><input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Filter ${certifications.length} certifications…`} className="mb-4 w-full rounded-xl border border-line2 bg-bg px-4 py-3 text-base placeholder:text-muted sm:text-sm" /></label>
+      <ul className="grid gap-3 sm:grid-cols-2">{list.map((c) => <li key={c.title} className="rounded-2xl border border-line bg-tile2 p-4"><p className="font-medium">{c.title}</p><p className="text-sm text-muted">{c.org} · {c.period}</p></li>)}</ul>
+      <p role="status" className="mt-3 text-sm text-muted">{list.length === 0 ? "No match." : ""}</p>
+    </div>
+  );
+}
+
+export default function Panel({ open, intent, onClose, images }: { open: PanelId | null; intent?: string; onClose: () => void; images: Images }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useModal(open !== null, ref, onClose);
+  let body: ReactNode = null;
+  if (open === "experience") body = <GitLog verbose />;
+  if (open === "github") body = (<div className="space-y-5"><dl className="grid grid-cols-3 gap-3 text-center">{[[gh.total, "contributions"], [gh.activeDays, "active days"], [gh.bestStreak, "day best streak"]].map(([v, l]) => <div key={String(l)} className="rounded-2xl border border-line bg-tile2 p-4"><dd className="text-3xl font-semibold tabular-nums">{String(v)}</dd><dt className="text-sm text-muted">{l}</dt></div>)}</dl><Heatmap cell={12} /><ul className="space-y-1 text-sm text-muted">{gh.accounts.map((u) => <li key={u}><a className="text-fg underline underline-offset-4" href={`https://github.com/${u}`} target="_blank" rel="noreferrer">@{u}<span className="sr-only"> (opens in new tab)</span></a> · {(gh.perAccount as Record<string, number>)[u]} contributions</li>)}</ul></div>);
+  if (open === "certs") body = <CertList />;
+  if (open === "testimonials") body = <ul className="grid gap-4 sm:grid-cols-2">{testimonials.map((t) => <li key={t.name} className="rounded-2xl border border-line bg-tile2 p-5"><p className="serif whitespace-pre-line text-lg leading-snug">{t.text}</p><Person t={t} className="mt-4" /></li>)}</ul>;
+  if (open === "work") body = <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{projects.map((p) => <ProjectCard key={p.slug} p={p} images={images} />)}</div>;
+  if (open === "life") body = <div className="space-y-6"><LifeMosaic images={images} big /><ul className="grid gap-3 sm:grid-cols-2">{beyond.curiosity.map((c) => <li key={c} className="rounded-2xl border border-line bg-tile2 p-4 text-sm leading-relaxed">{c}</li>)}</ul></div>;
+  if (open === "contact") body = <ContactForm initialIntent={intent} />;
+  return (
+    <AnimatePresence>
+      {open && (
+        <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-3 backdrop-blur-sm sm:p-6" onClick={onClose}>
+          <m.div ref={ref} role="dialog" aria-modal="true" aria-labelledby="panel-title" initial={{ opacity: 0, scale: 0.94, y: 24 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 12 }} transition={{ type: "spring", damping: 26, stiffness: 260 }}
+            className="panel-shell relative flex w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-line2 bg-tile shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between gap-4 border-b border-line px-5 py-4 sm:px-7"><h2 id="panel-title" className="text-xl font-semibold tracking-tight">{titles[open]}</h2>
+              <button onClick={onClose} className="flex h-11 items-center gap-2 rounded-full border border-line2 px-4 text-sm hover:border-accent">Close <X size={15} aria-hidden="true" /></button></div>
+            <div className="overflow-y-auto px-5 py-6 sm:px-7">{body}</div>
+          </m.div>
+        </m.div>
+      )}
+    </AnimatePresence>
+  );
+}

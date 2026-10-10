@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+/* Palette from the original site (brand now #a03318, chosen by the owner), charcoal #2f343e, grey #9b9ca2, off-white #f7f6f6, border #e0e0e0, lavender #f0f2fb, amber #ffb324.
+   --brand is for FILLS (buttons, dots). --accent is the text-safe orange: >= 5:1 on every surface in its theme. */
+:root, [data-theme="dark"] {
+  --bg: #14161b; --tile: #1c1f26; --tile-2: #232731; --line: #2f343e; --line-2: #434a58;
+  --fg: #f7f6f6; --muted: #a8a9b0;
+  --brand: #a03318; --on-brand: #ffffff; --accent: #ff9a7a; --warm: #ffb324; --danger: #ff9a8a;
+  --grid: rgba(255,255,255,0.07); --glow-a: rgba(160,51,24,0.22); --glow-b: rgba(255,179,36,0.05); --glow: rgba(255,154,122,0.10);
+  --h0: #262a33; --h1: #4b2418; --h2: #7d2e19; --h3: #a03318; --h4: #ff9a7a;
+  color-scheme: dark;
+}
+[data-theme="light"] {
+  --bg: #f7f6f6; --tile: #ffffff; --tile-2: #f0f2fb; --line: #e0e0e0; --line-2: #c6c9d6;
+  --fg: #2f343e; --muted: #5d5f66;
+  --brand: #a03318; --on-brand: #ffffff; --accent: #a03318; --warm: #a35f00; --danger: #b42318;
+  --grid: rgba(47,52,62,0.10); --glow-a: rgba(160,51,24,0.09); --glow-b: rgba(255,179,36,0.10); --glow: rgba(160,51,24,0.10);
+  --h0: #ebe6e4; --h1: #f3cfc3; --h2: #e59a82; --h3: #c4502d; --h4: #a03318;
+  color-scheme: light;
+}
+@theme inline {
+  --color-bg: var(--bg); --color-tile: var(--tile); --color-tile2: var(--tile-2); --color-line: var(--line); --color-line2: var(--line-2);
+  --color-fg: var(--fg); --color-muted: var(--muted); --color-accent: var(--accent); --color-brand: var(--brand); --color-on-brand: var(--on-brand); --color-warm: var(--warm);
+  --font-sans: var(--font-geist), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-serif: var(--font-instrument), Georgia, serif;
+}
+html { background: var(--bg); scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { color: var(--fg); font-family: var(--font-sans); font-size: 1rem; line-height: 1.6; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(900px 500px at 12% -10%, var(--glow-a), transparent 60%), radial-gradient(800px 500px at 100% 0%, var(--glow-b), transparent 55%); }
+.backdrop { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.backdrop-grid { position: absolute; inset: 0;
+  background-image: linear-gradient(to right, var(--grid) 1px, transparent 1px), linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size: 64px 64px; background-position: -1px -1px;
+  -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 25%, #000 35%, transparent 100%); mask-image: radial-gradient(ellipse 90% 80% at 50% 25%, #000 35%, transparent 100%); }
+.backdrop-glow { position: absolute; inset: 0;
+  background: radial-gradient(520px circle at var(--px, 70%) var(--py, 140px), color-mix(in srgb, var(--brand) 16%, transparent), transparent 65%); }
+@media (forced-colors: active) { .backdrop { display: none; } }
+h1, h2, h3 { text-wrap: balance; }
+p, li { text-wrap: pretty; }
+.serif { font-family: var(--font-instrument), Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: 0; }
+.mono-label { font-family: var(--font-geist-mono), monospace; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.tile { background: var(--tile); border: 1px solid var(--line); }
+.tile::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .35s ease;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), var(--glow), transparent 60%); }
+.tile:hover::before, .tile:focus-within::before { opacity: 1; }
+.tile:hover { border-color: var(--line-2); }
+.chip { border: 1px solid var(--line-2); border-radius: 999px; padding: 0.25rem 0.75rem; font-size: 0.8125rem; color: var(--fg); background: transparent; transition: background .2s, border-color .2s, color .2s; }
+.chip:hover, .chip[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: var(--on-brand); }
+.btn-primary { background: var(--brand); color: var(--on-brand); font-weight: 600; border-radius: 999px; padding: 0.7rem 1.25rem; min-height: 44px; display: inline-flex; align-items: center; gap: .5rem; transition: transform .2s, box-shadow .2s; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px -8px color-mix(in srgb, var(--brand) 55%, transparent); }
+.btn-ghost { border: 1px solid var(--line-2); border-radius: 999px; padding: 0.7rem 1.25rem; min-height: 44px; display: inline-flex; align-items: center; gap: .5rem; transition: border-color .2s, background .2s; }
+.btn-ghost:hover { border-color: var(--accent); background: color-mix(in srgb, var(--brand) 8%, transparent); }
+/* Accessibility */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+::selection { background: var(--brand); color: var(--on-brand); }
+@media (forced-colors: active) { .tile { border-color: CanvasText; } .btn-primary { border: 1px solid ButtonText; } }
+@keyframes pulse-dot { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .45; transform: scale(1.5); } }
+.pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .pulse-dot { animation: none; } }
+@keyframes blink { 50% { opacity: 0; } }
+.caret { animation: blink 1s steps(1) infinite; }
+@media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
+
+/* Small screens, notches and short landscape viewports */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+a, button { -webkit-tap-highlight-color: transparent; }
+.safe-x { padding-left: max(1rem, env(safe-area-inset-left)); padding-right: max(1rem, env(safe-area-inset-right)); }
+@media (min-width: 640px) { .safe-x { padding-left: max(1.5rem, env(safe-area-inset-left)); padding-right: max(1.5rem, env(safe-area-inset-right)); } }
+.panel-shell { max-height: 92vh; max-height: 92dvh; overscroll-behavior: contain; }
+@media (max-height: 520px) and (orientation: landscape) { .site-header { position: static; } }
+/* Standalone links get a comfortable target on touch screens */
+/* in the components layer so utilities like sm:hidden / md:hidden can still override it */
+@layer components {
+  .tap { display: inline-flex; align-items: center; min-height: 1.5rem; }
+  @media (pointer: coarse) { .tap { min-height: 2.75rem; } }
+}
