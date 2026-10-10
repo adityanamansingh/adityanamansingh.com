@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, m } from "framer-motion";
 import { ArrowRight, X } from "lucide-react";
 import { useModal } from "./modal";
@@ -12,20 +12,33 @@ import { GitLog, Heatmap, LifeMosaic, Person, ProjectCard, intents, type Images 
 export type PanelId = "experience" | "skills" | "github" | "certs" | "testimonials" | "work" | "life" | "contact";
 const titles: Record<PanelId, string> = { experience: "Experience", skills: "Skills", github: "Code activity", certs: "Certifications", testimonials: "Kind words", work: "All work", life: "Beyond code", contact: "Write to me" };
 
-/** Approximate place the message was sent from (city/country level), via the free ipwho.is lookup (no key). Never blocks sending: 2.5s timeout, any failure just means no location. */
-async function whereFrom() {
-  try {
-    const r = await fetch("https://ipwho.is/?fields=success,ip,city,region,country,timezone,connection", { signal: AbortSignal.timeout(2500) });
-    const d = await r.json();
-    if (!d.success) return {};
-    return { location: [d.city, d.region, d.country].filter(Boolean).join(", "), ip: d.ip, network: d.connection?.isp || d.connection?.org || "", timezone: d.timezone?.id || "" };
-  } catch { return {}; }
-}
+const SITEKEY = process.env.NEXT_PUBLIC_TURNSTILE_SITEKEY;
+type TurnstileApi = { render: (el: HTMLElement, o: Record<string, unknown>) => string; reset: (id?: string) => void; remove: (id: string) => void };
+const ts = () => (window as unknown as { turnstile?: TurnstileApi }).turnstile;
 
 function ContactForm({ initialIntent }: { initialIntent?: string }) {
   const [state, setState] = useState<"idle" | "sending" | "ok" | "err">("idle");
   const [intent, setIntent] = useState(initialIntent ?? "");
   const [msg, setMsg] = useState(() => intents.find((i) => i.key === initialIntent)?.text ?? "");
+  const [token, setToken] = useState("");
+  const boxRef = useRef<HTMLDivElement>(null);
+  const widget = useRef<string | undefined>(undefined);
+  useEffect(() => { // Cloudflare Turnstile (spam check), rendered explicitly so it can be reset after each send
+    if (!SITEKEY) return;
+    let gone = false;
+    const mount = () => {
+      const t = ts();
+      if (gone || !t || !boxRef.current || widget.current) return;
+      widget.current = t.render(boxRef.current, { sitekey: SITEKEY, action: "contact", theme: "auto", callback: setToken, "expired-callback": () => setToken(""), "error-callback": () => setToken("") });
+    };
+    if (ts()) mount();
+    else {
+      let el = document.querySelector<HTMLScriptElement>("script[data-turnstile]");
+      if (!el) { el = document.createElement("script"); el.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"; el.async = true; el.defer = true; el.dataset.turnstile = "1"; document.head.appendChild(el); }
+      el.addEventListener("load", mount);
+    }
+    return () => { gone = true; if (widget.current) ts()?.remove(widget.current); widget.current = undefined; };
+  }, []);
   const pick = (k: (typeof intents)[number]) => {
     const prev = intents.find((i) => i.key === intent);
     const next = intent === k.key ? "" : k.key;
@@ -35,19 +48,19 @@ function ContactForm({ initialIntent }: { initialIntent?: string }) {
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); setState("sending"); track("form_submit", { intent: intent || "none" });
     const form = e.currentTarget;
-    const key = process.env.NEXT_PUBLIC_WEB3FORMS_KEY;
     const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
     const label = intents.find((i) => i.key === intent)?.label ?? "General";
-    if (!key) { // no form service configured: hand over to the visitor's mail app instead
+    if (!SITEKEY) { // spam check not configured: hand over to the visitor's mail app instead
       location.href = `mailto:${profile.email}?subject=${encodeURIComponent(`Portfolio: ${label}`)}&body=${encodeURIComponent(`${msg}\n\n${data.name} (${data.email})`)}`;
       track("form_mailto_fallback"); setState("idle"); return;
     }
     try {
-      const r = await fetch("https://api.web3forms.com/submit", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ access_key: key, subject: `Portfolio: ${label} from ${data.name}`, from_name: "adityanamansingh.com", name: data.name, email: data.email, message: msg, topic: label, botcheck: data.botcheck ?? "", ...(await whereFrom()), page: location.href, referrer: document.referrer || "direct" }) });
-      const ok = r.ok && (await r.json()).success === true;
+      const r = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: data.name, email: data.email, message: msg, topic: label, botcheck: data.botcheck ?? "", "cf-turnstile-response": token, page: location.href, referrer: document.referrer || "direct" }) });
+      const ok = r.ok && ((await r.json().catch(() => ({}))) as { ok?: boolean }).ok === true;
       setState(ok ? "ok" : "err"); track(ok ? "generate_lead" : "form_error", { intent: intent || "none", value: 1, currency: "INR" }); if (ok) { form.reset(); setMsg(""); setIntent(""); }
     } catch { setState("err"); track("form_error", { intent: intent || "none", reason: "network" }); }
+    finally { setToken(""); if (widget.current) ts()?.reset(widget.current); } // a token works once
   }
   const field = "w-full rounded-xl border border-line2 bg-bg px-4 py-3 text-base placeholder:text-muted sm:text-sm";
   return (
@@ -62,11 +75,12 @@ function ContactForm({ initialIntent }: { initialIntent?: string }) {
         {intents.map((k) => <button key={k.key} type="button" aria-pressed={intent === k.key} onClick={() => pick(k)} className="chip">{k.label}</button>)}
       </div>
       <label className="block text-sm"><span className="mb-1.5 block text-muted">Message</span><textarea required rows={6} value={msg} onChange={(e) => setMsg(e.target.value)} placeholder="Tell me what's on your mind…" className={`${field} resize-none`} /></label>
+      {SITEKEY && <div ref={boxRef} className="min-h-[65px]" />}
       <div className="flex items-center gap-4">
-        <button disabled={state === "sending"} className="btn-primary disabled:opacity-60">{state === "sending" ? "Sending…" : "Send message"} <ArrowRight size={16} aria-hidden="true" /></button>
+        <button disabled={state === "sending" || (!!SITEKEY && !token)} className="btn-primary disabled:opacity-60">{state === "sending" ? "Sending…" : "Send message"} <ArrowRight size={16} aria-hidden="true" /></button>
         <p role="status" className="text-sm">{state === "ok" && <span className="text-accent">Thanks! I&apos;ll get back to you soon.</span>}{state === "err" && <span className="text-[var(--danger)]">Something went wrong. Please email me directly.</span>}</p>
       </div>
-      <p className="text-xs text-muted">Sending also shares your approximate location (city and country), so I know where a message came from.</p>
+      <p className="text-xs text-muted">Protected by Cloudflare Turnstile. Sending also shares your approximate location (city and country), so I know where a message came from.</p>
     </form>
   );
 }

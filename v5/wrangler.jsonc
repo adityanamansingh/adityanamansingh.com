@@ -2,5 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "adityanamansingh-com",
   "compatibility_date": "2026-10-10",
-  "pages_build_output_dir": "./out"
+  "pages_build_output_dir": "./out",
+  // Public Web3Forms access key (the contact Function uses it). TURNSTILE_SECRET is a Pages secret, set in the dashboard or with `wrangler pages secret put`.
+  "vars": { "WEB3FORMS_KEY": "b707c5dd-7405-4dc1-a370-2d2b827b1f30" }
 }
