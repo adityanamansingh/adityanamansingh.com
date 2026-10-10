@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Aditya Naman Singh — Resume</title>
+<style>
+@page { size: A4; margin: 14mm 15mm; }
+:root { --accent: ACCENT; --ink: #1f2330; --muted: #555a66; }
+* { box-sizing: border-box; }
+body { margin: 0; font: 9.6pt/1.42 Helvetica, Arial, sans-serif; color: var(--ink); }
+header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1.5px solid var(--accent); padding-bottom: 6px; }
+h1 { margin: 0; font-size: 21pt; letter-spacing: .2px; color: var(--accent); }
+.title { margin: 2px 0 0; font-size: 10.5pt; color: var(--muted); }
+.contact { text-align: right; font-size: 9pt; color: var(--muted); line-height: 1.5; }
+h2 { break-after: avoid; margin: 11px 0 4px; font-size: 10pt; letter-spacing: 1.2px; text-transform: uppercase; color: var(--accent); border-bottom: .6px solid #cfd2d9; padding-bottom: 2px; }
+p { margin: 0 0 3px; }
+.job { margin-top: 6px; break-inside: avoid; }
+.row { display: flex; justify-content: space-between; gap: 12px; }
+.role { font-weight: 700; } .org { color: var(--muted); } .date { white-space: nowrap; color: var(--muted); }
+.proj { font-weight: 700; margin: 4px 0 1px; }
+ul { margin: 0 0 2px; padding-left: 15px; } li { margin: 0 0 1.5px; }
+.stack { color: var(--muted); font-size: 8.8pt; margin: 1px 0 0; }
+.skills p { margin: 0 0 2px; } .skills b { color: var(--ink); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 0 22px; }
+.cert li { margin-bottom: 1px; font-size: 9.2pt; }
+</style></head><body>
+<header>
+  <div><h1>Aditya Naman Singh</h1><p class="title">Senior Software Engineer · Full Stack &amp; AI · Laravel, Node.js, Vue</p></div>
+  <div class="contact">+91 75 0000 6161<br>adityanamansingh@gmail.com<br>Delhi NCR, India · adityanamansingh.com<br>linkedin.com/in/adityanamansingh</div>
+</header>
+
+<h2>Summary</h2>
+<p>Full Stack &amp; AI Engineer with 6+ years of experience in Laravel and Node.js. Expert in PHP (5+ years) and Node.js (2+ years), AI integration (Gemini, Vertex AI, RAG), and server management on CentOS and Ubuntu. Skilled in REST APIs, MVC architecture, and cloud deployment on AWS and GCP.</p>
+
+<h2>Work experience</h2>
+
+<div class="job">
+  <div class="row"><div><span class="role">Senior Software Engineer</span> · <span class="org">Mono Solutions ApS</span></div><div class="date">Nov 2025 – Present</div></div>
+  <p class="proj">Website Builder &amp; Editor</p>
+  <ul>
+    <li>Developed and maintained 20+ reusable Vue 3 components for the shared Design System.</li>
+    <li>Built and enhanced Favourite Rows, Row Editor, Global/Local Design and other website editing features.</li>
+    <li>Fixed complex frontend issues, optimized component behavior and reviewed pull requests.</li>
+  </ul>
+  <p class="stack">Vue 3 · TypeScript · Storybook · SCSS · Chromatic · Git</p>
+  <p class="proj">Account Center &amp; Billing</p>
+  <ul>
+    <li>Developed Account Center features, including user management, authentication and billing workflows.</li>
+    <li>Integrated and enhanced Stripe payment and subscription functionality.</li>
+    <li>Built REST APIs and backend business logic with Laravel; PostgreSQL and MySQL schema and performance work.</li>
+  </ul>
+  <p class="stack">PHP · Laravel · Stripe · REST APIs · PostgreSQL · MySQL</p>
+  <p class="proj">Platform &amp; Infrastructure</p>
+  <ul>
+    <li>Configured Docker-based development environments with LocalStack, Redis, PostgreSQL and AWS S3.</li>
+    <li>Improved local development workflows and resolved production issues across frontend and backend.</li>
+    <li>Working on a flagship Mono project, a revamp of an older product, with an admin panel, Keycloak integration, PostgreSQL, Redis and Argo CD.</li>
+  </ul>
+  <p class="stack">Docker · AWS S3 · LocalStack · Redis · Keycloak · Argo CD</p>
+</div>
+
+<div class="job">
+  <div class="row"><div><span class="role">Software Engineer in Technology &amp; Product</span> · <span class="org">Sunstone Ed. Tech. Pvt. Ltd.</span></div><div class="date">Jul 2022 – Nov 2025</div></div>
+  <p class="proj">AdmitQuest.ai — AI-driven platform for personalized admissions and recommendations</p>
+  <ul>
+    <li>Built AI-integrated modules using Gemini APIs and Streamlit for student–college compatibility analysis.</li>
+    <li>Developed a GenAI chatbot combining AI models and database logic to guide students in finding suitable colleges.</li>
+    <li>Delivered ML-based scoring models with 93% accuracy, boosting personalization and counselor efficiency.</li>
+    <li>Optimized REST APIs and workflows for faster data processing and smoother user experience.</li>
+    <li>Partnered with data and product teams to convert insights into user-centric features.</li>
+  </ul>
+  <p class="stack">Node.js · Next.js · Streamlit · Gemini API · Docker · CI/CD · REST APIs</p>
+  <p class="proj">CollegeSearch.in — EdTech platform helping students find and apply to colleges</p>
+  <ul>
+    <li>Migrated the legacy Core PHP platform to Laravel, improving scalability, maintainability and system performance.</li>
+    <li>Consolidated 200+ daily crons into a single “All-in-One Cron”, streamlining lead flow and eliminating job conflicts.</li>
+    <li>Built a Lead Scoring &amp; Recommendation Engine handling 1.4L+ requests and benefitting 3L+ students, resulting in ~1700 successful admissions.</li>
+    <li>Improved Core Web Vitals and SEO by ~80%, reducing page load time from 9s to 0.6s.</li>
+    <li>Enhanced security and reliability by eliminating SQL injections, implementing caching, and optimizing redirects and UTM tracking with Google Analytics.</li>
+    <li>Managed analytics and performance via GA4, Search Console, Clarity and Jira.</li>
+  </ul>
+  <p class="stack">PHP · Laravel · MySQL · CodeIgniter · Redis · GA4 · Search Console · Clarity · Jira · Filament</p>
+</div>
+
+<div class="job">
+  <div class="row"><div><span class="role">Co-Founder</span> · <span class="org">Cryptina India</span></div><div class="date">Apr 2014 – May 2022</div></div>
+  <ul>
+    <li>Led a team of developers and designers, ensuring seamless project delivery.</li>
+    <li>Managed client communications to align project outcomes with business needs.</li>
+  </ul>
+  <p class="stack">Mobile Applications · Web Applications · EdTech · Healthcare Technology Solutions</p>
+</div>
+
+<section style="break-inside:avoid"><h2>Education</h2>
+<div class="row"><div><span class="role">M.Tech in Cloud Computing</span> · <span class="org">BITS Pilani</span></div><div class="date">Apr 2025 – Apr 2027</div></div>
+<div class="row"><div><span class="role">B.Tech in Information Technology</span> · <span class="org">College of Engineering Roorkee, Uttarakhand</span></div><div class="date">Aug 2019 – Aug 2023</div></div></section>
+
+<h2>Skills</h2>
+<div class="skills">
+  <p><b>Languages:</b> PHP, JavaScript, TypeScript, SQL</p>
+  <p><b>Frameworks &amp; libraries:</b> Laravel, Vue 3, Express.js, Node.js, jQuery, Streamlit</p>
+  <p><b>Frontend:</b> HTML5, CSS3, Bootstrap, Responsive UI</p>
+  <p><b>Backend:</b> REST APIs, MVC Architecture, Authentication, Keycloak, Middleware, Caching</p>
+  <p><b>AI &amp; ML tools:</b> Google Gemini, Vertex AI, RAG (Retrieval-Augmented Generation)</p>
+  <p><b>Cloud:</b> AWS (EC2, S3, RDS), GCP (Vertex AI, BigQuery, Cloud Storage)</p>
+  <p><b>DevOps:</b> Docker, Linux, Ubuntu, CI/CD Pipelines, Argo CD</p>
+  <p><b>Database:</b> MySQL, PostgreSQL, MongoDB, Redis</p>
+  <p><b>Project management:</b> Agile, Scrum, Jira</p>
+  <p><b>Data analysis:</b> Excel, SQL, Pandas, NumPy</p>
+  <p><b>Digital:</b> SEO, SEM, Google Analytics, Search Console</p>
+  <p><b>Design:</b> Photoshop, Illustrator, Figma</p>
+  <p><b>Leadership &amp; operations:</b> Team Management, Strategic Planning, CRM, Business Strategy</p>
+</div>
+
+<h2>Licences &amp; certifications</h2>
+<div class="two cert">
+  <ul>
+    <li>Develop GenAI Apps with Gemini and Streamlit — Google Skill Badge (Jul 2025)</li>
+    <li>Inspect Rich Documents with Gemini Multimodality and Multimodal RAG — Google Skill Badge (Jul 2025)</li>
+    <li>Gen AI Exchange Program — Hack2skill (Jul 2025)</li>
+    <li>Build Real World AI Applications with Gemini and Imagen — Google Skill Badge (Apr 2025)</li>
+    <li>Prompt Design in Vertex AI — Google Skill Badge (Apr 2025)</li>
+    <li>Applied Machine Learning: Foundations — LinkedIn Learning (Mar 2020)</li>
+  </ul>
+  <ul>
+    <li>MEAN Stack Training — Ducat Education (Dec 2021)</li>
+    <li>Angular Training — Ducat Education (Jan 2023)</li>
+    <li>Introduction to Programming (C Programming) — Udemy (Apr 2021)</li>
+    <li>Fundamentals of Digital Marketing, Google Ads Display, Google My Business Basics, Google Web Designer Basics — Google</li>
+    <li>Excel Essential Training (Office 365) — LinkedIn Learning (Mar 2020)</li>
+    <li>ICT Concave — Microsoft (Oct 2016)</li>
+  </ul>
+</div>
+</body></html>

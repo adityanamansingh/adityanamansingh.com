@@ -31,14 +31,14 @@ export default function Bento({ images }: { images: Images }) {
           <Tile id="top" title="Hello" index={0} className="md:col-span-2 lg:col-span-8 lg:row-span-4"><HeroTile onWork={toWork} /></Tile>
           <Tile id="portrait" title="Portrait" hideTitle index={1} className="min-h-[24rem] md:col-span-1 lg:col-span-4 lg:row-span-4"><PortraitTile images={images} /></Tile>
 
-          <Tile id="terminal" title="Terminal · ask me anything" index={2} className="md:col-span-2 lg:col-span-7 lg:row-span-5"><div className="flex min-h-[26rem] flex-1 flex-col"><Terminal focusKey={focusKey} /></div></Tile>
-          <Tile id="code" title="Code activity" index={3} onOpen={() => openPanel("github")} openLabel="Open code activity details" className="md:col-span-1 lg:col-span-5 lg:row-span-3"><GitHubTile /></Tile>
+          <Tile id="terminal" title="Terminal · ask me anything" index={2} className="md:col-span-2 lg:col-span-7 lg:row-span-5"><div className="relative min-h-[28rem] flex-1"><div className="absolute inset-0 flex flex-col"><Terminal focusKey={focusKey} /></div></div></Tile>
           <Tile id="now" title="Right now" index={4} className="md:col-span-2 lg:col-span-5 lg:row-span-2"><NowTile /></Tile>
+          <Tile id="code" title="Code activity" index={3} onOpen={() => openPanel("github")} openLabel="Open code activity details" className="md:col-span-1 lg:col-span-5 lg:row-span-3"><GitHubTile /></Tile>
 
           <GroupHeading id="background" title="What I've done," accent="and what I know" sub="Roles, tools and certifications." />
-          <Tile id="skills" level={3} title="Skills" index={6} className="md:col-span-2 lg:col-span-5 lg:row-span-5"><SkillsTile /></Tile>
-          <Tile id="experience" level={3} title="Experience" index={5} onOpen={() => openPanel("experience")} openLabel="Open full experience" className="md:col-span-2 lg:col-span-7 lg:row-span-5"><ExperienceTile /></Tile>
-          <Tile id="learning" level={3} title="Certifications" index={7} onOpen={() => openPanel("certs")} openLabel="Search and filter all certifications" className="md:col-span-2 lg:col-span-12 lg:row-span-4"><CertsTile /></Tile>
+          <Tile id="skills" level={3} title="Skills" index={6} onOpen={() => openPanel("skills")} openLabel="Open all skills" className="md:col-span-2 lg:col-span-7 lg:row-span-5"><SkillsTile /></Tile>
+          <Tile id="experience" level={3} title="Experience" index={5} onOpen={() => openPanel("experience")} openLabel="Open full experience" className="md:col-span-2 lg:col-span-5 lg:row-span-5"><ExperienceTile /></Tile>
+          <Tile id="learning" level={3} title="Certifications" index={7} onOpen={() => openPanel("certs")} openLabel="Search and filter all certifications" className="md:col-span-2 lg:col-span-12 lg:row-span-2"><CertsTile onAll={() => openPanel("certs")} /></Tile>
 
           <GroupHeading id="things-built" title="Things I've" accent="built" sub="Case studies, with the numbers." />
           <Tile id="work" level={3} title="Selected work" index={8} onOpen={() => openPanel("work")} openLabel="Open all work" className="md:col-span-2 lg:col-span-12 lg:row-span-4"><ProjectsTile images={images} /></Tile>

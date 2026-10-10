@@ -8,7 +8,7 @@ export const profile = {
   phone: "+91 7500006161",
   location: "Delhi NCR, India",
   available: true,
-  cv: "/aditya-naman-singh-cv.pdf",
+  cv: "/aditya-naman-singh-resume.pdf",
   socials: [
     { label: "LinkedIn", href: "https://linkedin.com/in/adityanamansingh" },
     { label: "Instagram", href: "https://instagram.com/namantastic" },
@@ -233,7 +233,7 @@ export const certifications = [
   { title: "Google Ads Display Certification", org: "Google Ads", period: "Apr 2020" },
   { title: "Google My Business Basics", org: "Google", period: "Apr 2020" },
   { title: "Google Web Designer Basics", org: "Google", period: "Apr 2020" },
-  { title: "Applied Machine Learning: Foundations", org: "LinkedIn Learning", period: "Mar 2020" },
+  { title: "Applied Machine Learning: Foundations", org: "LinkedIn Learning", period: "Mar 2020", top: true },
   { title: "Succeeding in Web Development: Full Stack and Front End", org: "LinkedIn Learning", period: "Mar 2020" },
   { title: "Excel Essential Training (Office 365)", org: "LinkedIn Learning", period: "Mar 2020" },
   { title: "Learning C", org: "LinkedIn Learning", period: "Mar 2020" },
@@ -356,9 +356,11 @@ export const beyond = {
   ],
 };
 
-export const certGroupOf = (title: string): "AI & GenAI" | "Software & web" | "Marketing, tools & more" => {
+export const certGroups = ["AI & GenAI", "Software & web", "Digital marketing & tools", "Workshops & programs"] as const;
+export const certGroupOf = (title: string): (typeof certGroups)[number] => {
   const t = title.toLowerCase();
   if (/(gen ai|genai|gemini|vertex|multimodal|applied machine learning)/.test(t)) return "AI & GenAI";
   if (/(goldman|angular|mean stack|html level|web developer bootcamp|programming|c programming|learning c|software development trainee|data processing|stc on web|succeeding in web)/.test(t)) return "Software & web";
-  return "Marketing, tools & more";
+  if (/(ciic|virtual lab|covid|ict concave)/.test(t)) return "Workshops & programs";
+  return "Digital marketing & tools";
 };

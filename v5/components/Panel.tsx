@@ -3,13 +3,13 @@ import { useMemo, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, m } from "framer-motion";
 import { ArrowRight, X } from "lucide-react";
 import { useModal } from "./modal";
-import { profile, certifications, testimonials, beyond } from "@/data/profile";
+import { profile, certifications, certGroups, certGroupOf, testimonials, beyond, skillGroups } from "@/data/profile";
 import { projects } from "@/data/projects";
 import gh from "@/data/github.json";
 import { GitLog, Heatmap, LifeMosaic, Person, ProjectCard, intents, type Images } from "./tiles";
 
-export type PanelId = "experience" | "github" | "certs" | "testimonials" | "work" | "life" | "contact";
-const titles: Record<PanelId, string> = { experience: "Experience", github: "Code activity", certs: "Certifications", testimonials: "Kind words", work: "All work", life: "Beyond code", contact: "Write to me" };
+export type PanelId = "experience" | "skills" | "github" | "certs" | "testimonials" | "work" | "life" | "contact";
+const titles: Record<PanelId, string> = { experience: "Experience", skills: "Skills", github: "Code activity", certs: "Certifications", testimonials: "Kind words", work: "All work", life: "Beyond code", contact: "Write to me" };
 
 function ContactForm({ initialIntent }: { initialIntent?: string }) {
   const [state, setState] = useState<"idle" | "sending" | "ok" | "err">("idle");
@@ -56,7 +56,18 @@ function CertList() {
   return (
     <div>
       <label className="block text-sm"><span className="sr-only">Filter certifications</span><input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Filter ${certifications.length} certifications…`} className="mb-4 w-full rounded-xl border border-line2 bg-bg px-4 py-3 text-base placeholder:text-muted sm:text-sm" /></label>
-      <ul className="grid gap-3 sm:grid-cols-2">{list.map((c) => <li key={c.title} className="rounded-2xl border border-line bg-tile2 p-4"><p className="font-medium">{c.title}</p><p className="text-sm text-muted">{c.org} · {c.period}</p></li>)}</ul>
+      <div className="space-y-6">
+        {certGroups.map((g) => {
+          const items = list.filter((c) => certGroupOf(c.title) === g);
+          if (!items.length) return null;
+          return (
+            <section key={g} aria-labelledby={`cg-${g}`}>
+              <h3 id={`cg-${g}`} className="mono-label !text-[11px]">{g} · {items.length}</h3>
+              <ul className="mt-2 grid gap-3 sm:grid-cols-2">{items.map((c) => <li key={c.title} className="rounded-2xl border border-line bg-tile2 p-4"><p className="font-medium">{c.title}</p><p className="text-sm text-muted">{c.org} · {c.period}</p></li>)}</ul>
+            </section>
+          );
+        })}
+      </div>
       <p role="status" className="mt-3 text-sm text-muted">{list.length === 0 ? "No match." : ""}</p>
     </div>
   );
@@ -67,6 +78,7 @@ export default function Panel({ open, intent, onClose, images }: { open: PanelId
   useModal(open !== null, ref, onClose);
   let body: ReactNode = null;
   if (open === "experience") body = <GitLog verbose />;
+  if (open === "skills") body = <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2">{skillGroups.map((g) => <section key={g.group}><h3 className="mono-label !text-[11px]">{g.group}</h3><ul className="mt-2 flex flex-wrap gap-1.5">{g.items.map((s) => <li key={s} className="rounded-full border border-line2 px-2.5 py-1 text-xs">{s}</li>)}</ul></section>)}</div>;
   if (open === "github") body = (<div className="space-y-5"><dl className="grid grid-cols-3 gap-3 text-center">{[[gh.total, "contributions"], [gh.activeDays, "active days"], [gh.bestStreak, "day best streak"]].map(([v, l]) => <div key={String(l)} className="rounded-2xl border border-line bg-tile2 p-4"><dd className="text-3xl font-semibold tabular-nums">{String(v)}</dd><dt className="text-sm text-muted">{l}</dt></div>)}</dl><Heatmap cell={12} /><ul className="space-y-1 text-sm text-muted">{gh.accounts.map((u) => <li key={u}><a className="text-fg underline underline-offset-4" href={`https://github.com/${u}`} target="_blank" rel="noreferrer">@{u}<span className="sr-only"> (opens in new tab)</span></a> · {(gh.perAccount as Record<string, number>)[u]} contributions</li>)}</ul></div>);
   if (open === "certs") body = <CertList />;
   if (open === "testimonials") body = <ul className="grid gap-4 sm:grid-cols-2">{testimonials.map((t) => <li key={t.name} className="rounded-2xl border border-line bg-tile2 p-5"><p className="serif whitespace-pre-line text-lg leading-snug">{t.text}</p><Person t={t} className="mt-4" /></li>)}</ul>;

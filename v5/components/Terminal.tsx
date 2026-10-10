@@ -35,12 +35,12 @@ export default function Terminal({ focusKey }: { focusKey?: number }) {
   const replace = useCallback((id: number, node: ReactNode) => setLines((l) => l.map((x) => (x.id === id ? { ...x, node } : x))), []);
 
   useEffect(() => { logRef.current?.scrollTo({ top: logRef.current.scrollHeight }); }, [lines]);
-  useEffect(() => { if (focusKey) inputRef.current?.focus(); }, [focusKey]);
+  useEffect(() => { if (focusKey) inputRef.current?.focus({ preventScroll: true }); }, [focusKey]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
       if (t.closest("input, textarea, [contenteditable], [role=dialog]")) return;
-      if (e.key === "/" || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k")) { e.preventDefault(); document.getElementById("terminal")?.scrollIntoView({ block: "center" }); inputRef.current?.focus(); }
+      if (e.key === "/" || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k")) { e.preventDefault(); document.getElementById("terminal")?.scrollIntoView({ block: "center" }); inputRef.current?.focus({ preventScroll: true }); }
     };
     addEventListener("keydown", onKey); return () => removeEventListener("keydown", onKey);
   }, []);
@@ -124,12 +124,12 @@ export default function Terminal({ focusKey }: { focusKey?: number }) {
   const chips = useMemo(() => ["help", "projects", "experience", "skills", "certs", "ask what has he built with AI?"], []);
 
   return (
-    <div data-theme="dark" className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-line bg-bg font-mono text-[13px] leading-relaxed text-fg" onClick={() => inputRef.current?.focus()}>
+    <div data-theme="dark" className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-line bg-bg font-mono text-[13px] leading-relaxed text-fg" onClick={() => inputRef.current?.focus({ preventScroll: true })}>
       <div className="flex items-center gap-2 border-b border-line bg-tile2 px-3 py-2" aria-hidden="true">
         <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" /><span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" /><span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
         <span className="ml-2 text-xs text-muted">aditya@portfolio — zsh</span>
       </div>
-      <div ref={logRef} role="log" aria-label="Terminal output" aria-live="polite" tabIndex={0} className="min-h-[14rem] flex-1 space-y-2 overflow-y-auto p-3">
+      <div ref={logRef} role="log" aria-label="Terminal output" aria-live="polite" tabIndex={0} className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain p-3">
         {lines.map((l) => <div key={l.id}>{l.node}</div>)}
       </div>
       <form className="flex items-center gap-2 border-t border-line px-3 py-2" onSubmit={(e) => { e.preventDefault(); const v = value; setValue(""); void run(v); }}>

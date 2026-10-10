@@ -137,7 +137,7 @@ export function GitLog({ limit, verbose }: { limit?: number; verbose?: boolean }
         const more = pts.length > 1 || groups.length > 1;
         const name = org?.url ? <a href={org.url} target="_blank" rel="noopener noreferrer" className="tap underline-offset-4 hover:text-accent hover:underline">{orgName}<span className="sr-only"> on LinkedIn (opens in new tab)</span></a> : orgName;
         return (
-          <li key={key} className={`${i >= 4 && !allRoles && !verbose ? "max-sm:hidden" : ""} relative pl-5 before:absolute before:left-[3px] before:top-2 before:h-2 before:w-2 before:rounded-full before:bg-brand after:absolute after:bottom-[-1rem] after:left-[6.5px] after:top-4 after:w-px after:bg-line2 last:after:hidden`}>
+          <li key={key} className={`${i >= 2 && !allRoles && !verbose ? "hidden" : ""} relative pl-5 before:absolute before:left-[3px] before:top-2 before:h-2 before:w-2 before:rounded-full before:bg-brand after:absolute after:bottom-[-1rem] after:left-[6.5px] after:top-4 after:w-px after:bg-line2 last:after:hidden`}>
             <div className={`flex ${earlier ? "gap-2" : "mt-1.5 gap-3"}`}>
               {org?.logo && (/* eslint-disable-next-line @next/next/no-img-element */ <img src={org.logo} alt="" width={32} height={32} loading="lazy" className={`shrink-0 rounded-md bg-white object-cover ${earlier ? "mt-0.5 h-6 w-6" : "h-11 w-11"}`} />)}
               <div className="min-w-0 flex-1 leading-snug">
@@ -153,7 +153,7 @@ export function GitLog({ limit, verbose }: { limit?: number; verbose?: boolean }
         );
       })}
     </ol>
-    {!verbose && list.length > 4 && <button type="button" onClick={() => setAllRoles((a) => !a)} aria-expanded={allRoles} className="tap mt-3 font-sans text-sm text-accent underline underline-offset-4 sm:hidden">{allRoles ? "Show fewer roles" : `Show ${list.length - 4} earlier roles`}</button>}
+    {!verbose && list.length > 2 && <button type="button" onClick={() => setAllRoles((a) => !a)} aria-expanded={allRoles} className="tap mt-3 font-sans text-sm text-accent underline underline-offset-4">{allRoles ? "Show fewer roles" : `Show ${list.length - 2} earlier roles`}</button>}
     </>
   );
 }
@@ -205,7 +205,7 @@ export function SkillsTile() {
     <div className="flex h-full flex-col gap-4">
       <div className="sm:columns-2 sm:gap-x-6">
         {skillGroups.map((g, gi) => (
-          <div key={g.group} className={`mb-3.5 break-inside-avoid ${gi >= 5 && !all ? "max-sm:hidden" : ""}`}>
+          <div key={g.group} className={`mb-3.5 break-inside-avoid ${gi >= 6 && !all ? "hidden" : ""}`}>
             <p className="mono-label !text-[11px]">{g.group}</p>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               {g.items.map((s) => (
@@ -215,7 +215,7 @@ export function SkillsTile() {
           </div>
         ))}
       </div>
-      <button type="button" onClick={() => setAll((a) => !a)} aria-expanded={all} className="tap -mt-1 self-start text-sm text-accent underline underline-offset-4 sm:hidden">{all ? "Show fewer skills" : `Show all ${skillGroups.length} skill areas`}</button>
+      <button type="button" onClick={() => setAll((a) => !a)} aria-expanded={all} className="tap -mt-1 self-start text-sm text-accent underline underline-offset-4">{all ? "Show fewer skills" : `Show ${skillGroups.length - 6} more skill areas`}</button>
       <p id="skill-caption" aria-live="polite" className="mt-auto min-h-[3.25rem] border-t border-line pt-3 text-sm text-muted">
         {active ? <><span className="text-accent">{active}</span>{skillInfo[active] ? `: ${skillInfo[active]}` : ""}{used.length > 0 && <span className="text-fg"> Used in {used.join(", ")}.</span>}</> : "Hover or focus a skill to see where I've used it."}
       </p>
@@ -224,22 +224,15 @@ export function SkillsTile() {
 }
 
 /* ---------- Certifications ---------- */
-export function CertsTile() {
-  const groups = (["AI & GenAI", "Software & web", "Marketing, tools & more"] as const).map((g) => ({ g, list: certifications.filter((c) => certGroupOf(c.title) === g) }));
-  const [all, setAll] = useState(false);
+export function CertsTile({ onAll }: { onAll: () => void }) {
+  // Most relevant first (flagged `top` in data/profile.ts, kept in that order); the full list opens in the dialog.
+  const featured = certifications.filter((c) => "top" in c && c.top);
   return (
     <div className="flex h-full flex-col gap-5">
-      <div className="grid gap-x-8 gap-y-6 md:grid-cols-3">
-        {groups.map(({ g, list }) => (
-          <div key={g}>
-            <h4 className="mono-label !text-[11px]">{g} · {list.length}</h4>
-            <ul className="mt-2 space-y-2.5">
-              {list.map((c, ci) => <li key={c.title} className={`border-l-2 border-line pl-3 ${ci >= 3 && !all ? "max-md:hidden" : ""}`}><p className="text-sm font-medium leading-snug">{c.title}</p><p className="text-xs text-muted">{c.org} · {c.period}</p></li>)}
-            </ul>
-          </div>
-        ))}
-      </div>
-      <button type="button" onClick={() => setAll((a) => !a)} aria-expanded={all} className="tap self-start text-sm text-accent underline underline-offset-4 md:hidden">{all ? "Show fewer certifications" : `Show all ${certifications.length} certifications`}</button>
+      <ul className="grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+        {featured.map((c) => <li key={c.title} className="border-l-2 border-line pl-3"><p className="text-sm font-medium leading-snug">{c.title}</p><p className="text-xs text-muted">{c.org} · {c.period}</p></li>)}
+      </ul>
+      <button type="button" onClick={onAll} aria-haspopup="dialog" className="tap self-start text-sm text-accent underline underline-offset-4">Show all {certifications.length} certifications</button>
     </div>
   );
 }
