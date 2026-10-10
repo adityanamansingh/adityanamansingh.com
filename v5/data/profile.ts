@@ -190,7 +190,7 @@ export const experience = [
     ],
   },
   {
-    role: "Co-Founder",
+    role: "Developer",
     earlier: true,
     org: "Cryptina India",
     period: "Apr 2014 – May 2022",
