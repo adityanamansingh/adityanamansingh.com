@@ -78,3 +78,8 @@ a, button { -webkit-tap-highlight-color: transparent; }
   .tap { display: inline-flex; align-items: center; min-height: 1.5rem; }
   @media (pointer: coarse) { .tap { min-height: 2.75rem; } }
 }
+
+/* Logo cursor blinks (static for reduced motion) */
+.logo-cursor { animation: logo-blink 1.2s steps(2, jump-none) infinite; }
+@keyframes logo-blink { 0%, 55% { opacity: 1; } 56%, 100% { opacity: .15; } }
+@media (prefers-reduced-motion: reduce) { .logo-cursor { animation: none; } }

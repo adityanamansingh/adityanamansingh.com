@@ -37,8 +37,8 @@ v2 (cinematic three.js), v3 ("The Ascent" mountain trek) and v4 (v3 + polish/acc
 ### Page structure (top to bottom, `components/Bento.tsx`)
 Uses a 12-col grid with `lg:auto-rows-[minmax(7.25rem,auto)]` (fixed row heights clipped content before).
 1. Hero (7) + Portrait (5, photo only, `hideTitle`, no name/time/title overlay). Hero metrics are 3 (years, clients, ML accuracy); "Admissions powered" and "9s → 0.6s" live only under CollegeSearch, not in the hero.
-2. Terminal (7) + Code activity / Now (5). The GitHub tile just shows the two account links.
-3. Group heading "What I've done, and what I know": Skills (5, left) + Experience (7, right), then Certifications (12, all 27 in 3 columns, no white space).
+2. Terminal (7) + a right column (5) with "Right now" on top and "Code activity" below. The GitHub tile just shows the two account links.
+3. Group heading "What I've done, and what I know": Skills (7, left) + Experience (5, right), then Certifications (12; only the 9 `top` ones, rest in the dialog).
 4. Group heading "Things I've built": Work (12, 3 equal project cards).
 5. Beyond code (4, left) + Kind words (8, right, so long recommendations fit).
 6. Contact (12, horizontal on lg, intent chips: hiring / freelance / chit-chat / trek buddy).
@@ -79,7 +79,7 @@ Dark island (`data-theme="dark"` on its root, intentional in both themes). Comma
 - Beyond code tile: trek, "Haridwar & Ganga ji" (key `mountain`, Waves icon; owner is from Haridwar, not Dehradun; schools in Haridwar/Dehradun stay in education), music, dance, moving places. Mosaic is `compact` (2 columns) inside the 4-col tile and large in its dialog, which also lists the curiosity one-liners.
 
 ### Responsive + performance (owner asked for phones, tablets, folds, laptops, old Windows)
-- Breakpoints: 1 column below `md` (768), 2 columns at `md` (`md:grid-flow-dense`: portrait and Code activity sit side by side, everything else full width), 12 columns at `lg`. Never leave a lone half-width tile at `md`.
+- Breakpoints: 1 column below `md` (768), 2 columns at `md` (`md:grid-flow-dense`: portrait and Right now sit side by side, everything else full width), 12 columns at `lg`. Never leave a lone half-width tile at `md`.
 - Phones: `MobileMenu.tsx` (section links, below `md`), header shows "Aditya Singh" under 440px and only the logo mark under 360px (sr-only name), `viewportFit: "cover"` + `.safe-x` padding for notches, header is not sticky in short landscape (`.site-header`), terminal and form inputs are 16px on mobile (stops iOS zoom), `.tap` links are 24px (44px on coarse pointers), Skills/Certifications/older roles collapse behind "Show all…" buttons on small screens, dialogs use `.panel-shell` (92dvh).
 - Performance: `next/image` for portrait/covers/life photos (portrait 295KB -> ~12-22KB AVIF/WebP; Next 16 only allows quality 75, so do not pass `quality`), `LazyMotion` + `m.*` components instead of `motion.*`, `Panel` is dynamically imported, `/images/*` cache headers in `next.config.mjs`, above-the-fold tiles (index < 2) do not fade in (LCP 770ms -> ~70ms locally, CLS 0).
 - Verified (emulated): widths 280 (Galaxy Fold), 344, 360, 375, 390, 430, 673 (fold unfolded), 768, 912 (Surface Pro), 1024, 1366x768, 1536 @1.25, 1280x720, 2560, landscape phone 844x390: no horizontal overflow, no controls under 24px, Lighthouse a11y/best-practices/SEO/agentic 100 on mobile and desktop, no console errors. Not verified on real hardware, real Safari/Firefox, or real old browsers (`color-mix`, `text-wrap` need ~2023+ browsers; they degrade to plain colours/wrapping).
@@ -89,6 +89,8 @@ Dark island (`data-theme="dark"` on its root, intentional in both themes). Comma
 `v5/public/aditya-naman-singh-resume.pdf` (accent `#a03318` on name/headings, linked from the site) and `aditya-naman-singh-resume-ats.pdf` (all black, for job portals) are generated from `v5/resume/resume.html` (replace `ACCENT` with a hex, then `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --no-pdf-header-footer --print-to-pdf=out.pdf file:///.../resume.html`). Content = the owner's CV text + the Mono flagship revamp + Keycloak/Argo CD/Vue 3/PostgreSQL/Redis skills. The original `aditya-naman-singh-cv.pdf` is kept untouched. Update `resume.html` when the CV changes.
 
 - Collapsed by default on every screen (owner asked for tighter tiles): Experience shows Mono + Sunstone and a "Show N earlier roles" toggle; Skills shows the first 6 areas and a "Show N more skill areas" toggle; Certifications shows only the 9 flagged `top: true` in `data/profile.ts` (5 Google/Hack2skill GenAI badges, Goldman Sachs job simulation, Angular, MEAN, Applied ML) in that order, with "Show all 27" opening the filterable dialog. All three tiles have the expand (maximize) button: Experience dialog = full log, Skills dialog = all 106 skills, Certifications dialog = all 27 + filter. Skills is 7 columns, Experience 5. The terminal tile has a fixed height (`relative` wrapper + `absolute inset-0`) so output scrolls inside it and never grows the page. `.tap` lives in `@layer components` so `sm:hidden`/`md:hidden` can override it (it didn't when unlayered).
+- Logo: monogram "A" with a terminal-cursor crossbar (brand tile, white A, amber cursor that blinks, static for reduced motion). Component `components/Logo.tsx` (used in the header), static copy in `app/icon.svg` (favicon) and inline in `app/opengraph-image.tsx`. Replaces the old 2x2 grid mark.
+
 ### Images
 - Portrait: `v5/public/images/portrait.jpg` is the owner's photo with the colleague who sat behind him removed and a light skin cleanup plus soft face glow (owner asked) (macOS Vision person mask via a small Swift script + the wall repainted behind the shoulder; originals kept outside the repo). Owner wants the real background kept (monitors with code are fine) and NO cut-out/glow/vignette (both were tried and rejected). Only one `portrait.*` file may exist in `public/images/`.
 - Case-study page (`app/work/[slug]/page.tsx`): two-column on desktop with a sticky "More work" sidebar (related projects first: the three LED-lighting sites together, AdmitQuest with CollegeSearch); it replaced the old "Next project" card. Empty role/year/stack are hidden; no "coming soon" or developer notes are shown to visitors.
@@ -121,6 +123,12 @@ Production build passes; all routes 200 (404 for unknown `/work/slug`); Lighthou
 ## Running things (state at last session; may be stale)
 - Dev: v5 :3004. Production: v5 :3005.
 - Cloudflare quick tunnels (URLs change on restart): `cloudflared tunnel --url http://localhost:PORT`. v5 was `https://discussing-finds-switched-propose.trycloudflare.com` (changes on every restart). Rebuild the production server after content changes or the tunnel serves old output.
+
+## Latest state (end of this session)
+- Live: v5 production on :3005 (`next start -H 0.0.0.0 -p 3005`), dev on :3004, Cloudflare quick tunnel currently `https://discussing-finds-switched-propose.trycloudflare.com` (changes on restart; recreate with `cloudflared tunnel --url http://localhost:3005`).
+- Git: the owner has committed v5 himself; only `v5/data/profile.ts` was uncommitted at last check. Never run `git commit`, never create PRs or PR text on GitHub; write drafts to a local `.md`.
+- Still open: owner's real Life/Beyond-code photos, `ANTHROPIC_API_KEY`, contact-form email provider, "The hub / Coming soon!" text inside the Mono SVG cover (only the "working on this page" line was removed), DHOA live link, Sunstone/other optional extra numbers, eyes-open edit of the portrait (not possible with pixel tools; needs an AI editor or another photo).
+- Lighthouse a11y/best-practices/SEO/agentic 100 on mobile and desktop at last run; no horizontal overflow from 280px to 2560px.
 
 ## Gotchas learned
 - Never truncate a file by opening it for write before reading it (this emptied `app/icon.svg` once and broke the build).
