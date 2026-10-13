@@ -1,25 +1,11 @@
 # adityanamansingh.com
 
-Personal portfolio site of Aditya Naman Singh. Static single-page site (no build step, no package.json) plus two standalone PHP scripts for the unrelated "Layali" project.
+Personal portfolio site of Aditya Naman Singh: Next.js 16 "Bento + Terminal" site (formerly ``), statically exported and hosted on Cloudflare Pages.
 
-## Layout
+## Branches
 
-- `index.html` — the entire site (~100 KB). Sections: about, resume, contact, etc. Includes Google Analytics (`G-68RMVK0HFE`).
-- `css/` — vendor CSS (bootstrap, fontawesome, flaticon, leaflet, animations) plus the site's own `default.css`, `style.css`, `responsive.css`.
-- `js/` — vendor libs (jQuery 1.12.4, bootstrap, three.js, vanta-dots, leaflet, carouFredSel, easytabs, vanilla-tilt, etc.). Own code is `js/main.js` (preloader, `data-background` images, scroll-to-top, knob bars, accordion, vanta) and `js/menu.js`.
-- `images/` — `about/`, `hero/`, `logo/`, `resume/`.
-- `fonts/` — icon/web fonts.
-- `india_states.geojson` (~1 MB) — map data used with leaflet.
-- `aditya-naman-singh-cv.pdf` — downloadable CV.
-- `service/` — `layali-contact.php` (contact-form POST endpoint, MySQL) and `layali-leads.php` (admin page listing leads). Not part of the portfolio itself.
-
-## Working notes
-
-- No build/test tooling. Open `index.html` directly or serve the folder (`python3 -m http.server`) to preview.
-- Edit only the site's own files (`index.html`, `css/style.css`, `css/default.css`, `css/responsive.css`, `js/main.js`, `js/menu.js`); treat vendor files in `css/` and `js/` as read-only.
-- Script load order in `index.html` matters (jQuery before plugins before `main.js`).
-- `service/*.php` contain hardcoded DB credentials and a hardcoded admin login. Don't copy them elsewhere or echo them in output; moving them to env/config would be a good cleanup if asked.
-- Untracked at times: `package-lock.json` (stray, empty of deps) — not part of the project.
+- `main`: this Next.js site at the repo root (moved up from `` on 2026-10-13).
+- `old`: snapshot before that move: the old static site (`index.html`, `css/`, `js/`, `images/`, `fonts/`, `india_states.geojson`, `aditya-naman-singh-cv.pdf`), the unrelated Layali PHP scripts (`service/layali-contact.php`, `service/layali-leads.php`, hardcoded DB credentials and admin login: don't copy or echo them) and ``. Use it only to look up old things; don't build on it.
 
 ## Git
 
@@ -28,11 +14,11 @@ Personal portfolio site of Aditya Naman Singh. Static single-page site (no build
 
 ## Earlier redesigns (v2, v3, v4) — removed
 
-v2 (cinematic three.js), v3 ("The Ascent" mountain trek) and v4 (v3 + polish/accessibility) were deleted once v5 was chosen as final. They were never committed, so they are gone for good; see "History" below. Only the old static site (root) and `v5/` remain.
+v2 (cinematic three.js), v3 ("The Ascent" mountain trek) and v4 (v3 + polish/accessibility) were deleted once v5 was chosen as final. They were never committed, so they are gone for good; see "History" below.
 
-## v5/ (Bento + Terminal redesign) — the final version
+## The site (Bento + Terminal redesign, "v5")
 
-`cd v5 && npm run dev` (port 3004); production: `npm run build && npx next start -H 0.0.0.0 -p 3005`. Next.js 16, TypeScript, Tailwind v4, Framer Motion (`MotionConfig reducedMotion="user"`), lucide-react v1 (no brand icons), `@anthropic-ai/sdk`. Read `v5/AGENTS.md` too (Next 16 notes: `params` is a Promise, etc.).
+`npm run dev` (port 3004); `npm run build` writes the static site to `out/` (see "Hosting"). Next.js 16, TypeScript, Tailwind v4, Framer Motion (`MotionConfig reducedMotion="user"`), lucide-react v1 (no brand icons). Read `AGENTS.md` too (Next 16 notes: `params` is a Promise, etc.).
 
 ### Page structure (top to bottom, `components/Bento.tsx`)
 Uses a 12-col grid with `lg:auto-rows-[minmax(7.25rem,auto)]` (fixed row heights clipped content before).
@@ -68,7 +54,7 @@ Files: `components/tiles.tsx` (HeroTile, PortraitTile, GitHubTile/Heatmap, NowTi
 Dark island (`data-theme="dark"` on its root, intentional in both themes). Commands: `help`, `whoami`, `about`, `experience` (plain list; `log` still works as an alias), `projects`/`work`, `open <n|name>`, `skills [filter]` (e.g. `skills cloud`), `certs [filter]` (all 27), `github`, `now`, `contact`, `cv`, `ask ...`, `clear`, `sudo`, `ls`. Anything unknown is treated as a question for `/api/ask`. Starts with welcome + `help` output and command chips. `/` or Ctrl/Cmd+K focuses the input.
 
 ### `ask` backend (`app/api/ask/route.ts`, `lib/knowledge.ts`)
-- With `ANTHROPIC_API_KEY` in `v5/.env.local` it calls Claude: default `claude-opus-5-5` (override `ASK_MODEL`, e.g. `claude-haiku-5-5` for lower cost), `output_config: {effort: "low"}`, `max_tokens: 700`, prompt-cached system prompt, `betas: ["server-side-fallback-2026-07-01"]` + `fallbacks: "default"`, typed error chain, refusal handling. Params are cast through `unknown` to `Anthropic.Beta.Messages.MessageCreateParamsNonStreaming` to satisfy the types.
+- With `ANTHROPIC_API_KEY` in `.env.local` it calls Claude: default `claude-opus-5-5` (override `ASK_MODEL`, e.g. `claude-haiku-5-5` for lower cost), `output_config: {effort: "low"}`, `max_tokens: 700`, prompt-cached system prompt, `betas: ["server-side-fallback-2026-07-01"]` + `fallbacks: "default"`, typed error chain, refusal handling. Params are cast through `unknown` to `Anthropic.Beta.Messages.MessageCreateParamsNonStreaming` to satisfy the types.
 - Without a key it answers locally with keyword matching over the profile data (this is the only path tested; there is no API key on this machine).
 - Limits: 6 req/min/IP and `ASK_DAILY_CAP` (default 300) per server process. Answers are grounded only in `lib/knowledge.ts` chunks; never put private info in `data/`.
 
@@ -86,13 +72,13 @@ Dark island (`data-theme="dark"` on its root, intentional in both themes). Comma
 - Visual background: `Backdrop.tsx` + `.backdrop*` in `globals.css` (blueprint grid + pointer glow, decorative, off for reduced motion/touch/forced-colors). `body` must not have its own background or it hides the backdrop. Header is `bg-bg/95` because a translucent header failed contrast against the grid.
 
 ### Resume PDFs
-`v5/public/aditya-naman-singh-resume.pdf` (accent `#a03318` on name/headings, linked from the site) and `aditya-naman-singh-resume-ats.pdf` (all black, for job portals) are generated from `v5/resume/resume.html` (replace `ACCENT` with a hex, then `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --no-pdf-header-footer --print-to-pdf=out.pdf file:///.../resume.html`). Content = the owner's CV text + the Mono flagship revamp + Keycloak/Argo CD/Vue 3/PostgreSQL/Redis skills. The original `aditya-naman-singh-cv.pdf` is kept untouched. Update `resume.html` when the CV changes.
+`public/aditya-naman-singh-resume.pdf` (accent `#a03318` on name/headings, linked from the site) and `aditya-naman-singh-resume-ats.pdf` (all black, for job portals) are generated from `resume/resume.html` (replace `ACCENT` with a hex, then `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --no-pdf-header-footer --print-to-pdf=out.pdf file:///.../resume.html`). Content = the owner's CV text + the Mono flagship revamp + Keycloak/Argo CD/Vue 3/PostgreSQL/Redis skills. The original `aditya-naman-singh-cv.pdf` is on the `old` branch. Update `resume.html` when the CV changes.
 
 - Collapsed by default on every screen (owner asked for tighter tiles): Experience shows Mono + Sunstone and a "Show N earlier roles" toggle; Skills shows the first 6 areas and a "Show N more skill areas" toggle; Certifications shows only the 9 flagged `top: true` in `data/profile.ts` (5 Google/Hack2skill GenAI badges, Goldman Sachs job simulation, Angular, MEAN, Applied ML) in that order, with "Show all 27" opening the filterable dialog. All three tiles have the expand (maximize) button: Experience dialog = full log, Skills dialog = all 106 skills, Certifications dialog = all 27 + filter. Skills is 7 columns, Experience 5. The terminal tile has a fixed height (`relative` wrapper + `absolute inset-0`) so output scrolls inside it and never grows the page. `.tap` lives in `@layer components` so `sm:hidden`/`md:hidden` can override it (it didn't when unlayered).
 - Logo: monogram "A" with a terminal-cursor crossbar (brand tile, white A, amber cursor that blinks, static for reduced motion). Component `components/Logo.tsx` (used in the header), static copy in `app/icon.svg` (favicon) and inline in `app/opengraph-image.tsx`. Replaces the old 2x2 grid mark.
 
 ### Images
-- Portrait: `v5/public/images/portrait.jpg` is the owner's photo with the colleague who sat behind him removed and a light skin cleanup plus soft face glow (owner asked) (macOS Vision person mask via a small Swift script + the wall repainted behind the shoulder; originals kept outside the repo). Owner wants the real background kept (monitors with code are fine) and NO cut-out/glow/vignette (both were tried and rejected). Only one `portrait.*` file may exist in `public/images/`.
+- Portrait: `public/images/portrait.jpg` is the owner's photo with the colleague who sat behind him removed and a light skin cleanup plus soft face glow (owner asked) (macOS Vision person mask via a small Swift script + the wall repainted behind the shoulder; originals kept outside the repo). Owner wants the real background kept (monitors with code are fine) and NO cut-out/glow/vignette (both were tried and rejected). Only one `portrait.*` file may exist in `public/images/`.
 - Case-study page (`app/work/[slug]/page.tsx`): two-column on desktop with a sticky "More work" sidebar (related projects first: the three LED-lighting sites together, AdmitQuest with CollegeSearch); it replaced the old "Next project" card. Empty role/year/stack are hidden; no "coming soon" or developer notes are shown to visitors.
 - Client sites (IKIO Technologies, RLUX, DHOA, IKIO LED Lighting): role "Design & development", stack PHP/Laravel/CodeIgniter (owner said "mostly"), year left empty on purpose. IKIO Technologies was built ahead of the company's IPO (15 Investors sub-sections, admin panel for investor-relations content). RLUX, IKIO LED and DHOA also have admin panels (RLUX: categories to OEM forms; IKIO LED: products, stock, categories, sub-categories; DHOA: owner has no access now, so no detail). Rowdy Meals is filled from the owner's Canva deck (no-contact delivery in Haridwar). Layali was removed.
 - Work covers: file name must match the project slug exactly (`project-admitquest.svg`, `project-collegesearch.jpg`, ...); jpg/png/webp/avif/svg all work. `lib/images.ts` adds `?v=<mtime>` so browsers refetch a replaced file (needs `images.localPatterns` in `next.config.mjs`). Screenshots are cropped 16:10 (1920x1200) so cards never crop them; SVG covers with a transparent background use `coverBg` in `data/projects.ts` (Mono uses the "New Mono Gradient", AdmitQuest a dark backdrop) and render with `object-contain`. The Work tile shows only projects that have a cover; when the count leaves one over (7), the first card is shown wide. The Mono SVG was edited: the "We're working on this page" paragraph removed, mask removed and canvas widened to 630x335 so the whole UI fits (original backup was kept outside the repo). Projects added: IKIO Technologies, RLUX, IKIO LED Lighting, DHOA (Design House of Alexandra); their role/year/stack are still `—` until the owner supplies them (empty fields are hidden on the case-study page). Screenshots of sites behind Cloudflare bot checks cannot be taken automatically; the owner supplies them.
@@ -112,17 +98,17 @@ Tokens contrast-checked in BOTH themes; real buttons/links with 24px+ (44px for 
 Production build passes; all routes 200 (404 for unknown `/work/slug`); Lighthouse a11y / best-practices / SEO / agentic 100 on desktop and mobile for `/` in dark, and desktop in light (snapshot mode); contrast sampler over 1062 text nodes: 0 failures in each theme; CLS 0.0002, LCP ~1.1s; no console errors; 390px no horizontal overflow; light theme persists after reload. Not verified: real screen readers (VoiceOver/NVDA), Safari/Firefox, live Claude responses.
 
 ## Hosting + contact form (static export, current)
-- `v5/next.config.mjs` uses `output: "export"`: `npm run build` writes the whole site to `v5/out/` (git-ignored). `images.unoptimized` (no server image optimizer), cache/content-type headers in `public/_headers` (Cloudflare Pages/Netlify format). Preview the build with `cd out && python3 -m http.server 3006`. `next start` no longer applies.
+- `next.config.mjs` uses `output: "export"`: `npm run build` writes the whole site to `out/` (git-ignored). `images.unoptimized` (no server image optimizer), cache/content-type headers in `public/_headers` (Cloudflare Pages/Netlify format). Preview the build with `cd out && python3 -m http.server 3006`. `next start` no longer applies.
 - The `ask` feature (`/api/ask`, `lib/knowledge.ts`, `@anthropic-ai/sdk`, terminal `ask`/free-text questions) and `/api/contact` were removed on purpose. Unknown terminal commands print "command not found".
-- Cloudflare ignores dashboard BUILD variables when `wrangler.jsonc` exists (log says "Build environment variables: (none found)"), so public build-time values (`NEXT_PUBLIC_*`) live in the committed `v5/.env.production`. 
-- Live on Cloudflare Pages (project `adityanamansingh-com`, GitHub-connected, auto-deploys every push to `main`; `adityanamansingh.com` is its custom domain). Pages settings: root `v5`, build `npx next build`, output `out`; `v5/wrangler.jsonc` also sets `pages_build_output_dir`. Adding the custom domain replaces the old static site at the root, so do it only when ready. (Vidushi's S3 + CloudFront GitHub Actions flow is the alternative; see `githubworking/vidushidesigns-new-2026/.github/workflows/deploy.yml`.)
+- Cloudflare ignores dashboard BUILD variables when `wrangler.jsonc` exists (log says "Build environment variables: (none found)"), so public build-time values (`NEXT_PUBLIC_*`) live in the committed `.env.production`. 
+- Live on Cloudflare Pages (project `adityanamansingh-com`, GitHub-connected, auto-deploys every push to `main`; `adityanamansingh.com` is its custom domain). Pages settings: root directory empty (repo root; was `v5` before the 2026-10-13 move), build `npx next build`, output `out`; `wrangler.jsonc` also sets `pages_build_output_dir`. (Vidushi's S3 + CloudFront GitHub Actions flow is the alternative; see `githubworking/vidushidesigns-new-2026/.github/workflows/deploy.yml`.)
 - Socials in the Contact tile + terminal `contact`: LinkedIn, GitHub, Instagram (`@namantastic`), Facebook.
 
 ## SEO, AEO, analytics, form location
 - SEO: `app/layout.tsx` (canonical, robots, OG/Twitter, keywords), per-case-study metadata + canonical + OG in `app/work/[slug]/page.tsx`, `app/robots.ts`, `app/sitemap.ts` (both `force-static`), JSON-LD from `lib/seo.ts` (Person + WebSite on every page, CreativeWork + BreadcrumbList on case studies; built from `data/`, so it stays in sync).
 - AEO: `app/llms.txt/route.ts` and `app/llms-full.txt/route.ts` (static, generated from `data/` by `llmsText()` in `lib/seo.ts`), `robots.ts` names the AI crawlers (GPTBot, ClaudeBot, PerplexityBot, Google-Extended...) as allowed. No hidden FAQ on purpose (owner dislikes extra copy; hidden text is spammy).
 - Analytics: GA4 `G-68RMVK0HFE` via `components/Analytics.tsx` + `lib/analytics.ts` (`track()`); runs only on adityanamansingh.com (not localhost/previews) and not with Do Not Track. Events: contact_click (email/phone), social_click, outbound_click, resume_download (GA4 adds its own file_download), select_content (case study), section_view, scroll_depth (25/50/75/100), panel_open, terminal_command (command name only), theme_toggle, copy_email, form_submit, generate_lead (form sent OK), form_error, form_mailto_fallback. Never send names, emails, messages or terminal arguments.
-- Contact form pipeline (current): `ContactForm` in `components/Panel.tsx` renders a Cloudflare Turnstile widget (site key `NEXT_PUBLIC_TURNSTILE_SITEKEY` in the committed `v5/.env.production`, action `contact`, send button disabled until a token exists, widget reset after each send) and POSTs JSON to `/api/contact`, a Cloudflare Pages Function in `v5/functions/api/contact.ts`. The Function verifies the token with Cloudflare (success + action `contact` + hostname allowlist), validates fields, honeypot (`botcheck`), then forwards to Web3Forms (which emails it) with location/ip/network/timezone taken from `request.cf` (replaced the earlier `ipwho.is` lookup). Without a site key the form falls back to `mailto:`.
+- Contact form pipeline (current): `ContactForm` in `components/Panel.tsx` renders a Cloudflare Turnstile widget (site key `NEXT_PUBLIC_TURNSTILE_SITEKEY` in the committed `.env.production`, action `contact`, send button disabled until a token exists, widget reset after each send) and POSTs JSON to `/api/contact`, a Cloudflare Pages Function in `functions/api/contact.ts`. The Function verifies the token with Cloudflare (success + action `contact` + hostname allowlist), validates fields, honeypot (`botcheck`), then forwards to Web3Forms (which emails it) with location/ip/network/timezone taken from `request.cf` (replaced the earlier `ipwho.is` lookup). Without a site key the form falls back to `mailto:`.
 - Secrets: `TURNSTILE_SECRET` is a Pages secret (dashboard Variables and secrets, or `npx wrangler pages secret put TURNSTILE_SECRET --project-name adityanamansingh-com`); never commit it. `WEB3FORMS_KEY` is also a Pages secret. Do NOT also put either name in `wrangler.jsonc` `vars`: a name defined in both places fails the deploy ("Binding name already in use"). Local test: `npx wrangler pages dev out --port 3007 --binding TURNSTILE_SECRET=1x0000000000000000000000000000000AA --binding WEB3FORMS_KEY=dummy --binding TURNSTILE_HOSTNAMES=example.com` (Cloudflare's dummy secret passes siteverify but returns no `action`, so the Function rejects dummy tokens by design; verified 400/403/honeypot paths). `functions/` is excluded from the Next tsconfig. The site is no longer fully static: Pages Functions are free (100k requests/day).
 
 ## History of this redesign effort (what was done, in order)
@@ -134,14 +120,13 @@ Production build passes; all routes 200 (404 for unknown `/work/slug`); Lighthou
 6. v5: owner said no v2–v4 section felt good, so a brand-new bento + terminal concept ("B+A"). Then iterated: portrait tile cleaned, metrics one line, certs in terminal, Experience/Skills/Certs grouped before Work, dark/light toggle, old-site palette then `#a03318`, all 27 certs filling their tile, skills re-extracted fully (now 106).
 7. Later polish: recommendations made verbatim with avatars + LinkedIn links and a LinkedIn sync script; company logos + per-role summaries/Read more; older roles compacted and two removed; Skills/Experience swapped; skills reordered by relevance; meta copy and git-log theming removed; Kind words/Beyond code swapped; Mountain tile became Haridwar & Ganga ji; Mono flagship revamp, Keycloak/Argo CD added; production server rebuilt after each change.
 
-## Running things (state at last session; may be stale)
-- Dev: v5 :3004. Production: v5 :3005.
-- Cloudflare quick tunnels (URLs change on restart): `cloudflared tunnel --url http://localhost:PORT`. v5 was `https://discussing-finds-switched-propose.trycloudflare.com` (changes on every restart). Rebuild the production server after content changes or the tunnel serves old output.
+## Running things
+- Dev :3004 (`npm run dev`). Static preview of the build: `cd out && python3 -m http.server 3006`. Pages Functions locally: `npx wrangler pages dev out --port 3007 ...` (see above).
+- Cloudflare quick tunnels for sharing a local build: `cloudflared tunnel --url http://localhost:PORT` (URL changes on every restart).
 
-## Latest state (end of this session)
-- Live: v5 production on :3005 (`next start -H 0.0.0.0 -p 3005`), dev on :3004, Cloudflare quick tunnel currently `https://discussing-finds-switched-propose.trycloudflare.com` (changes on restart; recreate with `cloudflared tunnel --url http://localhost:3005`).
-- Git: the owner has committed v5 himself; only `v5/data/profile.ts` was uncommitted at last check. Never run `git commit`, never create PRs or PR text on GitHub; write drafts to a local `.md`.
-- Still open: owner's real Life/Beyond-code photos, `ANTHROPIC_API_KEY`, contact-form email provider, "The hub / Coming soon!" text inside the Mono SVG cover (only the "working on this page" line was removed), DHOA live link, Sunstone/other optional extra numbers, eyes-open edit of the portrait (not possible with pixel tools; needs an AI editor or another photo).
+## Latest state
+- Never run `git commit`, never create PRs or PR text on GitHub; write drafts to a local `.md`.
+- Still open: owner's real Life/Beyond-code photos, "The hub / Coming soon!" text inside the Mono SVG cover (only the "working on this page" line was removed), DHOA live link, Sunstone/other optional extra numbers, eyes-open edit of the portrait (not possible with pixel tools; needs an AI editor or another photo).
 - Lighthouse a11y/best-practices/SEO/agentic 100 on mobile and desktop at last run; no horizontal overflow from 280px to 2560px.
 
 ## Gotchas learned
